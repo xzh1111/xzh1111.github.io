@@ -1,0 +1,16 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>面试 - 分类 - Soy_min</title>
+        <link>https://example.com/categories/%E9%9D%A2%E8%AF%95/</link>
+        <description>面试 - 分类 - Soy_min</description>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright><lastBuildDate>Tue, 19 Mar 2024 14:52:56 &#43;0800</lastBuildDate><atom:link href="https://example.com/categories/%E9%9D%A2%E8%AF%95/" rel="self" type="application/rss+xml" /><item>
+    <title>寻找两个正序数组中位数</title>
+    <link>https://example.com/%E5%AF%BB%E6%89%BE%E4%B8%A4%E4%B8%AA%E6%AD%A3%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E4%BD%8D%E6%95%B0/</link>
+    <pubDate>Tue, 19 Mar 2024 14:52:56 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>https://example.com/%E5%AF%BB%E6%89%BE%E4%B8%A4%E4%B8%AA%E6%AD%A3%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E4%BD%8D%E6%95%B0/</guid>
+    <description><![CDATA[<h2 id="简单实现">简单实现</h2>
+<p>寻找两个正序数组的中位数可以通过归并排序的思想，先将两个数组合并为一个有序数组，然后根据数组的长度是奇数还是偶数来找出中位数。以下是一个简单的实现：</p>]]></description>
+</item>
+</channel>
+</rss>

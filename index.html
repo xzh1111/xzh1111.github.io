@@ -110,9 +110,61 @@
         alt="/images/avatar.png"
         title="/images/avatar.png" width="528" height="560" /></a></div><div class="home-subtitle"><div id="id-1" class="typeit"></div></div><div class="links"><a href="mailto:ermeiyao@outlook.com" title="Email" rel="me"><i class="far fa-envelope fa-fw" aria-hidden="true"></i></a><a href="/index.xml" title="RSS" target="_blank" rel="noopener noreffer me"><i class="fas fa-rss fa-fw" aria-hidden="true"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/echo%E6%A1%86%E6%9E%B6/">Echo框架</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel="author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>作者</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2024-03-21">2024-03-21</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/echo/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Echo</a></span></div><div class="content"></div><div class="post-footer">
-        <a href="/echo%E6%A1%86%E6%9E%B6/">阅读全文</a></div>
+        <a href="/wsl%E9%85%8D%E7%BD%AE%E4%BD%BF%E7%94%A8%E5%AE%BF%E4%B8%BB%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BB%A3%E7%90%86/">Wsl配置使用宿主机网络代理&go安装</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel="author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>作者</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2024-10-30">2024-10-30</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/wsl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Wsl</a></span></div><div class="content"><p>我刚刚在windows10上安装了Ubuntu-24 wsl，想着安装一下go，于是根据：https://go.dev/doc/install,  使用wget 去获取go安装包：</p></div><div class="post-footer">
+        <a href="/wsl%E9%85%8D%E7%BD%AE%E4%BD%BF%E7%94%A8%E5%AE%BF%E4%B8%BB%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BB%A3%E7%90%86/">阅读全文</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/wsl/">Wsl</a>,&nbsp;<a href="/tags/go/">Go</a>,&nbsp;<a href="/tags/%E4%BB%A3%E7%90%86/">代理</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/wsl%E5%88%9D%E6%AD%A5%E4%BD%BF%E7%94%A8/">Wsl初步使用</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel="author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>作者</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2024-10-30">2024-10-30</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/wsl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Wsl</a></span></div><div class="content"><h2 id="安装">安装</h2>
+<p>1.选择发行版本并安装</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl"> wsl --list --online
+</span></span><span class="line"><span class="cl">以下是可安装的有效分发的列表。
+</span></span><span class="line"><span class="cl">使用 &#39;wsl.exe --install &lt;Distro&gt;&#39; 安装。
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">NAME                            FRIENDLY NAME
+</span></span><span class="line"><span class="cl">Ubuntu                          Ubuntu
+</span></span><span class="line"><span class="cl">Debian                          Debian GNU/Linux
+</span></span><span class="line"><span class="cl">kali-linux                      Kali Linux Rolling
+</span></span><span class="line"><span class="cl">Ubuntu-18.04                    Ubuntu 18.04 LTS
+</span></span><span class="line"><span class="cl">Ubuntu-20.04                    Ubuntu 20.04 LTS
+</span></span><span class="line"><span class="cl">Ubuntu-22.04                    Ubuntu 22.04 LTS
+</span></span><span class="line"><span class="cl">Ubuntu-24.04                    Ubuntu 24.04 LTS
+</span></span><span class="line"><span class="cl">OracleLinux_7_9                 Oracle Linux 7.9
+</span></span><span class="line"><span class="cl">OracleLinux_8_7                 Oracle Linux 8.7
+</span></span><span class="line"><span class="cl">OracleLinux_9_1                 Oracle Linux 9.1
+</span></span><span class="line"><span class="cl">openSUSE-Leap-15.6              openSUSE Leap 15.6
+</span></span><span class="line"><span class="cl">SUSE-Linux-Enterprise-15-SP5    SUSE Linux Enterprise 15 SP5
+</span></span><span class="line"><span class="cl">SUSE-Linux-Enterprise-15-SP6    SUSE Linux Enterprise 15 SP6
+</span></span><span class="line"><span class="cl">openSUSE-Tumbleweed             openSUSE Tumbleweed
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>比如我选择：Ubuntu-24.04</p></div><div class="post-footer">
+        <a href="/wsl%E5%88%9D%E6%AD%A5%E4%BD%BF%E7%94%A8/">阅读全文</a><div class="post-tags">
+                <i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/wsl/">Wsl</a></div></div>
 </article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/%E5%AF%BB%E6%89%BE%E4%B8%A4%E4%B8%AA%E6%AD%A3%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E4%BD%8D%E6%95%B0/">寻找两个正序数组中位数</a>
     </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel="author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>作者</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2024-03-19">2024-03-19</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/%E9%9D%A2%E8%AF%95/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>面试</a></span></div><div class="content"><h2 id="简单实现">简单实现</h2>
@@ -247,19 +299,6 @@
 <li>
 <p><strong>数据传输方式</strong>: 在Flink中，数据通过网络在任务操作符之间传输。Flink 网络堆栈使用 TCP/IP 套接字进行传输，并为每个连接配备了两个缓冲池。一个用于数据的接收，一个用于数据的发送。</p></div><div class="post-footer">
         <a href="/flink-network-stack/">阅读全文</a></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/flink%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0exactly-one-%E8%AF%AD%E4%B9%89%E7%9A%84/">flink是如何实现exactly-one 语义的</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel="author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>作者</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2024-02-21">2024-02-21</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/flink/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Flink</a></span></div><div class="content"><h2 id="apache-flink-实现-exactly-once-语义步骤">Apache Flink 实现 exactly-once 语义步骤：</h2>
-<ol>
-<li><strong>快照（Snapshot）</strong>：Flink 使用一种称为 &ldquo;异步分布式快照&rdquo; 的技术来捕获数据流的状态。这种技术基于 Chandy-Lamport 算法，可以在不阻塞数据流处理的情况下，捕获数据流的一致性状态。</li>
-<li><strong>重放（Replay）</strong>：当系统出现故障时，Flink 可以从最近的快照开始重放数据流，以恢复到故障发生前的状态。这种重放机制确保了数据处理的一致性。</li>
-<li><strong>端到端的一致性保证</strong>：Flink 不仅在内部保证了 exactly-once 语义，还通过与外部系统（如 Kafka）的集成，实现了端到端的 exactly-once 语义。例如，Flink 可以与 Kafka 集成，使用 Kafka 的事务功能来确保数据的一致性。</li>
-<li><strong>两阶段提交协议（Two-Phase Commit Protocol）</strong>：Flink 还使用了两阶段提交协议来保证 exactly-once 语义。在第一阶段，所有的操作都被预提交并保存在快照中。只有当所有的操作都成功预提交后，才会进入第二阶段，即提交阶段。在提交阶段，所有的操作都会被正式提交。如果在预提交阶段有任何操作失败，那么整个事务都会被回滚，从而保证了数据的一致性。</li>
-</ol>
-<h2 id="快照技术">快照技术</h2>
-<p>Apache Flink 使用的快照技术是基于 Chandy-Lamport 分布式快照算法的。下面是这个快照技术的一些关键点：</p></div><div class="post-footer">
-        <a href="/flink%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0exactly-one-%E8%AF%AD%E4%B9%89%E7%9A%84/">阅读全文</a><div class="post-tags">
-                <i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/flink/">Flink</a></div></div>
 </article><ul class="pagination"><li class="page-item active">
                     <span class="page-link">
                         <a href="/">1</a>
