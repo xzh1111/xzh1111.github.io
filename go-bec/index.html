@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>Go BEC介绍和实际应用 - Soy_min</title><meta name="Description" content="Soy_min 个人技术博客"><meta property="og:url" content="https://example.com/go-bec/">
+  <meta property="og:site_name" content="Soy_min">
+  <meta property="og:title" content="Go BEC介绍和实际应用">
+  <meta property="og:description" content="边界检查 go在array/slice元素的索引和subslice 操作中，运行时将检查所涉及的索引是否越界–边界检查(Bounds-checking)。如果一个指数超出了范围，就会产生panic ，以防止非法的index造成伤害（如Heartbleed）。边界检查使我们的代码安全运行，另一方面，它们也使我们的代码运行得慢一些。可以通过生成的汇编代码，查看是否有插入检查 CALL runtime.panicIndex(SB). 这种插入的跳转会影响我们能多大程度上利用cpu的pipelining。">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2024-02-24T18:00:29+08:00">
+    <meta property="article:modified_time" content="2024-02-24T18:00:29+08:00">
+    <meta property="article:tag" content="Go">
+    <meta property="og:image" content="https://example.com/logo.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://example.com/logo.png">
+  <meta name="twitter:title" content="Go BEC介绍和实际应用">
+  <meta name="twitter:description" content="边界检查 go在array/slice元素的索引和subslice 操作中，运行时将检查所涉及的索引是否越界–边界检查(Bounds-checking)。如果一个指数超出了范围，就会产生panic ，以防止非法的index造成伤害（如Heartbleed）。边界检查使我们的代码安全运行，另一方面，它们也使我们的代码运行得慢一些。可以通过生成的汇编代码，查看是否有插入检查 CALL runtime.panicIndex(SB). 这种插入的跳转会影响我们能多大程度上利用cpu的pipelining。">
+<meta name="application-name" content="LoveIt">
+<meta name="apple-mobile-web-app-title" content="LoveIt"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://example.com/go-bec/" /><link rel="prev" href="https://example.com/flink-network-stack/" /><link rel="next" href="https://example.com/go-template/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Go BEC介绍和实际应用",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/example.com\/go-bec\/"
+        },"image": [{
+                            "@type": "ImageObject",
+                            "url": "https:\/\/example.com\/images\/Apple-Devices-Preview.png",
+                            "width":  3200 ,
+                            "height":  2048 
+                        }],"genre": "posts","keywords": "go","wordcount":  3499 ,
+        "url": "https:\/\/example.com\/go-bec\/","datePublished": "2024-02-24T18:00:29+08:00","dateModified": "2024-02-24T18:00:29+08:00","license": "This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.","publisher": {
+            "@type": "Organization",
+            "name": "xxxx","logo": {
+                    "@type": "ImageObject",
+                    "url": "https:\/\/example.com\/images\/avatar.png",
+                    "width":  528 ,
+                    "height":  560 
+                }},"author": {
+                "@type": "Person",
+                "name": "作者"
+            },"description": ""
+    }
+    </script></head>
+    <body data-header-desktop="fixed" data-header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Soy_min"><span class="header-title-pre"><i class='far fa-kiss-wink-heart fa-fw' aria-hidden='true'></i></span>Soy_min</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 所有文章 </a><a class="menu-item" href="/tags/"> 标签 </a><a class="menu-item" href="/categories/"> 分类 </a><a class="menu-item" href="/about/"> 关于 </a><a class="menu-item" href="https://github.com/xzh1111" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw' aria-hidden='true'></i>  </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-desktop">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-desktop" title="搜索">
+                            <i class="fas fa-search fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-desktop" title="清空">
+                            <i class="fas fa-times-circle fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin" aria-hidden="true"></i>
+                        </span>
+                    </span><a href="javascript:void(0);" class="menu-item theme-switch" title="切换主题">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a><a href="javascript:void(0);" class="menu-item language" title="选择语言">
+                    <i class="fa fa-globe" aria-hidden="true"></i>                      
+                    <select class="language-select" id="language-select-desktop" onchange="location = this.value;"><option value="/go-bec/" selected>简体中文</option></select>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Soy_min"><span class="header-title-pre"><i class='far fa-kiss-wink-heart fa-fw' aria-hidden='true'></i></span>Soy_min</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-mobile">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-mobile" title="搜索">
+                            <i class="fas fa-search fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-mobile" title="清空">
+                            <i class="fas fa-times-circle fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin" aria-hidden="true"></i>
+                        </span>
+                    </div>
+                    <a href="javascript:void(0);" class="search-cancel" id="search-cancel-mobile">
+                        取消
+                    </a>
+                </div><a class="menu-item" href="/posts/" title="">所有文章</a><a class="menu-item" href="/tags/" title="">标签</a><a class="menu-item" href="/categories/" title="">分类</a><a class="menu-item" href="/about/" title="">关于</a><a class="menu-item" href="https://github.com/xzh1111" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw' aria-hidden='true'></i></a><a href="javascript:void(0);" class="menu-item theme-switch" title="切换主题">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a><a href="javascript:void(0);" class="menu-item" title="选择语言">
+                    <i class="fa fa-globe fa-fw" aria-hidden="true"></i>
+                    <select class="language-select" onchange="location = this.value;"><option value="/go-bec/" selected>简体中文</option></select>
+                </a></div>
+    </div>
+</header><div class="search-dropdown desktop">
+        <div id="search-dropdown-desktop"></div>
+    </div>
+    <div class="search-dropdown mobile">
+        <div id="search-dropdown-mobile"></div>
+    </div><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">目录</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">Go BEC介绍和实际应用</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="/" title="Author" rel="author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>作者</a></span>&nbsp;<span class="post-category">收录于 <a href="/categories/go/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Go</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-02-24">2024-02-24</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;约 3499 字&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;预计阅读 7 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#边界检查">边界检查</a></li>
+    <li><a href="#常见边界消除方法">常见边界消除方法</a>
+      <ul>
+        <li><a href="#例子1先索引最大下标">例子1：先索引最大下标</a></li>
+        <li><a href="#例子2如果明确数组长度请显式写出">例子2：如果明确数组长度，请显式写出</a></li>
+        <li><a href="#例子3使用掩码进行索引">例子3：使用掩码进行索引</a></li>
+      </ul>
+    </li>
+    <li><a href="#实际例子">实际例子</a>
+      <ul>
+        <li><a href="#点积函数优化">点积函数优化</a></li>
+        <li><a href="#业务函数">业务函数</a></li>
+        <li><a href="#test">test</a></li>
+      </ul>
+    </li>
+    <li><a href="#1brc">1brc</a></li>
+    <li><a href="#小结">小结</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h2 id="边界检查">边界检查</h2>
+<p>go在array/slice元素的索引和subslice 操作中，运行时将检查所涉及的索引是否越界&ndash;边界检查(Bounds-checking)。如果一个指数超出了范围，就会产生panic ，以防止非法的index造成伤害（如<a href="https://en.wikipedia.org/wiki/Heartbleed" target="_blank" rel="noopener noreffer ">Heartbleed</a>）。边界检查使我们的代码安全运行，另一方面，它们也使我们的代码运行得慢一些。可以通过生成的<a href="https://go.godbolt.org/z/eqEvh6ech" target="_blank" rel="noopener noreffer ">汇编代码</a>，查看是否有插入检查<code> CALL    runtime.panicIndex(SB)</code>. 这种插入的跳转会影响我们能多大程度上利用cpu的pipelining。</p>
+<p>Go语言的BCE技术是基于静态代码分析的SSA。SSA是静态单赋值形式（Static Single Assignment）的缩写，这是一种中间表示（Intermediate Representation，IR）的形式，用于进行编译器优化。这种技术的目标是在编译时期尽可能地消除数组边界检查，以提高代码的运行效率。SSA帮助Go编译器有效地使用BCE(Found IsInBounds elimination)和CSE(common subexpression elimination)等优化。BCE可以避免一些不必要的边界检查，CSE可以避免一些重复计算，使标准Go编译器可以生成更高效的程序。</p>
+<p>我们可以使用-gcflags=&quot;-d=ssa/check_bce/debug=1&quot;，查看哪些代码插入了【边界检查】，<code>-d=ssa/check_bce/debug=1</code>选项会让编译器打印出SSA阶段的详细信息，包括进行边界检查消除（BCE）的决策。</p>
+<h2 id="常见边界消除方法">常见边界消除方法</h2>
+<p>总的来说，至于能否进行 BCE 优化，主要取决于我们的代码是否能在编译阶段给编译器足够的信息(hints)来确认哪些访问是安全的。这边介绍几个我认为比较有用的例子：</p>
+<h3 id="例子1先索引最大下标">例子1：先索引最大下标</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">s2l</span><span class="p">(</span><span class="nx">s</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">_</span> <span class="p">=</span> <span class="nx">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1">//  Found IsInBounds
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">_</span> <span class="p">=</span> <span class="nx">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="c1">//  Found IsInBounds
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">_</span> <span class="p">=</span> <span class="nx">s</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="c1">//  Found IsInBounds
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">// BCE
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kd">func</span> <span class="nf">l2s</span><span class="p">(</span><span class="nx">s</span> <span class="p">[]</span><span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">_</span> <span class="p">=</span> <span class="nx">s</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="c1">//  Found IsInBounds
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">_</span> <span class="p">=</span> <span class="nx">s</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="c1">//  BCE
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">_</span> <span class="p">=</span> <span class="nx">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1">//  BCE
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>显然如果最大下标check通过，那么就不需要往下check了。</p>
+<h3 id="例子2如果明确数组长度请显式写出">例子2：如果明确数组长度，请显式写出</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">fixLen</span><span class="p">(</span><span class="nx">a</span> <span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="kt">int</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// 当这样写：a []int 下面就不能BCE
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">_</span> <span class="p">=</span> <span class="nx">a</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="c1">//  BCE
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="例子3使用掩码进行索引">例子3：使用掩码进行索引</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">maskI</span><span class="p">(</span><span class="nx">src</span> <span class="p">[]</span><span class="kt">int</span><span class="p">,</span> <span class="nx">i</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">i</span> <span class="o">:=</span> <span class="nx">i</span> <span class="o">&amp;</span> <span class="nb">uint64</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="nx">src</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">_</span> <span class="p">=</span> <span class="nx">src</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="实际例子">实际例子</h2>
+<h3 id="点积函数优化">点积函数优化</h3>
+<p><a href="https://sourcegraph.com/blog/slow-to-simd" target="_blank" rel="noopener noreffer ">sourcegraph</a>的工程师在他们的点积计算函数优化<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup>上使用了BCE技术，
+这个是BCE之前版本：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">DotUnroll4</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span> <span class="p">[]</span><span class="kt">float32</span><span class="p">)</span> <span class="kt">float32</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">sum</span> <span class="o">:=</span> <span class="nb">float32</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">a</span><span class="p">);</span> <span class="nx">i</span> <span class="o">+=</span> <span class="mi">4</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">s0</span> <span class="o">:=</span> <span class="nx">a</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">*</span> <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">s1</span> <span class="o">:=</span> <span class="nx">a</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">s2</span> <span class="o">:=</span> <span class="nx">a</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">s3</span> <span class="o">:=</span> <span class="nx">a</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="nx">b</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">sum</span> <span class="o">+=</span> <span class="nx">s0</span> <span class="o">+</span> <span class="nx">s1</span> <span class="o">+</span> <span class="nx">s2</span> <span class="o">+</span> <span class="nx">s3</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">sum</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>这个是BCE之后版本：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">DotBCE</span><span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span> <span class="p">[]</span><span class="kt">float32</span><span class="p">)</span> <span class="kt">float32</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nx">b</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="s">&#34;slices must have equal lengths&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nx">a</span><span class="p">)</span><span class="o">%</span><span class="mi">4</span> <span class="o">!=</span> <span class="mi">0</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nb">panic</span><span class="p">(</span><span class="s">&#34;slice length must be multiple of 4&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl">	<span class="nx">sum</span> <span class="o">:=</span> <span class="nb">float32</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">a</span><span class="p">);</span> <span class="nx">i</span> <span class="o">+=</span> <span class="mi">4</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">aTmp</span> <span class="o">:=</span> <span class="nx">a</span><span class="p">[</span><span class="nx">i</span> <span class="p">:</span> <span class="nx">i</span><span class="o">+</span><span class="mi">4</span> <span class="p">:</span> <span class="nx">i</span><span class="o">+</span><span class="mi">4</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">bTmp</span> <span class="o">:=</span> <span class="nx">b</span><span class="p">[</span><span class="nx">i</span> <span class="p">:</span> <span class="nx">i</span><span class="o">+</span><span class="mi">4</span> <span class="p">:</span> <span class="nx">i</span><span class="o">+</span><span class="mi">4</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">s0</span> <span class="o">:=</span> <span class="nx">aTmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="nx">bTmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">s1</span> <span class="o">:=</span> <span class="nx">aTmp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="nx">bTmp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">s2</span> <span class="o">:=</span> <span class="nx">aTmp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="nx">bTmp</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">s3</span> <span class="o">:=</span> <span class="nx">aTmp</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="nx">bTmp</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">sum</span> <span class="o">+=</span> <span class="nx">s0</span> <span class="o">+</span> <span class="nx">s1</span> <span class="o">+</span> <span class="nx">s2</span> <span class="o">+</span> <span class="nx">s3</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">sum</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>编译看看：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">go build -gcflags=&#34;-d=ssa/check_bce/debug=1&#34;
+</span></span><span class="line"><span class="cl"># learngo/bce
+</span></span><span class="line"><span class="cl">./dot.go:6:10: Found IsInBounds
+</span></span><span class="line"><span class="cl">./dot.go:6:17: Found IsInBounds
+</span></span><span class="line"><span class="cl">./dot.go:7:10: Found IsInBounds
+</span></span><span class="line"><span class="cl">./dot.go:7:19: Found IsInBounds
+</span></span><span class="line"><span class="cl">./dot.go:8:10: Found IsInBounds
+</span></span><span class="line"><span class="cl">./dot.go:8:19: Found IsInBounds
+</span></span><span class="line"><span class="cl">./dot.go:9:10: Found IsInBounds
+</span></span><span class="line"><span class="cl">./dot.go:9:19: Found IsInBounds
+</span></span><span class="line"><span class="cl">./dot.go:26:12: Found IsSliceInBounds
+</span></span><span class="line"><span class="cl">./dot.go:27:12: Found IsSliceInBounds
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>边界检查从8个下降到了2两个，因为新的slice的len和cap都是4,可以确保aTemp[0]、aTemp[3]、bTemp[0]、bTemp[3]不会越界。
+这边比较有趣的是：为什么使用 a[i:i+4:i+4] 而不是 a[i:i+4]?  &ndash; 指定cap可以减少编译器重新计算slice的cap, 从而提高性能</p>
+<h3 id="业务函数">业务函数</h3>
+<p>首先我使用的go版本为1.21, 游戏商品推荐场景中，我们经常需要对新品道具做置顶操作。现在假设我们有个<code>pkgs []*Pkg</code> slice, 需要对新品ExtInfo[&ldquo;IsNew&rdquo;]==&ldquo;1&rdquo; 做置顶操作，其中相关删除操作应该已经是最优解了：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">type</span> <span class="nx">Pkg</span> <span class="kd">struct</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">Id</span>      <span class="kt">string</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">ExtInfo</span> <span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">TopNewItemsBce0</span><span class="p">(</span><span class="nx">pkgs</span> <span class="p">[]</span><span class="o">*</span><span class="nx">Pkg</span><span class="p">)</span> <span class="p">[]</span><span class="o">*</span><span class="nx">Pkg</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">topPkgs</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="o">*</span><span class="nx">Pkg</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">pkgs</span><span class="p">);</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">v</span><span class="p">,</span> <span class="nx">ok</span> <span class="o">:=</span> <span class="nx">pkgs</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">ExtInfo</span><span class="p">[</span><span class="s">&#34;IsNew&#34;</span><span class="p">];</span> <span class="nx">ok</span> <span class="o">&amp;&amp;</span> <span class="nx">v</span> <span class="o">==</span> <span class="s">&#34;1&#34;</span> <span class="p">{</span> <span class="c1">// 方式1,推荐
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="nx">topPkgs</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">topPkgs</span><span class="p">,</span> <span class="nx">pkgs</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">pkgs</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">pkgs</span><span class="p">[:</span><span class="nx">i</span><span class="p">],</span> <span class="nx">pkgs</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span><span class="o">...</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">i</span><span class="o">--</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">outPkgs</span> <span class="o">:=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">topPkgs</span><span class="p">,</span> <span class="nx">pkgs</span><span class="o">...</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">outPkgs</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">TopNewItemsBce1</span><span class="p">(</span><span class="nx">pkgs</span> <span class="p">[]</span><span class="o">*</span><span class="nx">Pkg</span><span class="p">)</span> <span class="p">[]</span><span class="o">*</span><span class="nx">Pkg</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">topPkgs</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="o">*</span><span class="nx">Pkg</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">pkgs</span><span class="p">);</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">pkgs</span><span class="p">[</span><span class="nx">i</span><span class="p">].</span><span class="nx">ExtInfo</span><span class="p">[</span><span class="s">&#34;IsNew&#34;</span><span class="p">]</span> <span class="o">==</span> <span class="s">&#34;1&#34;</span> <span class="p">{</span>  <span class="c1">// 方式2，不推荐
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="nx">topPkgs</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">topPkgs</span><span class="p">,</span> <span class="nx">pkgs</span><span class="p">[</span><span class="nx">i</span><span class="p">])</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">pkgs</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">pkgs</span><span class="p">[:</span><span class="nx">i</span><span class="p">],</span> <span class="nx">pkgs</span><span class="p">[</span><span class="nx">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span><span class="o">...</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">i</span><span class="o">--</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">outPkgs</span> <span class="o">:=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">topPkgs</span><span class="p">,</span> <span class="nx">pkgs</span><span class="o">...</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">outPkgs</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>其中涉及到条件的判断，写法有下面两种：</p>
+<ul>
+<li><code>if v, ok := pkgs[i].ExtInfo[&quot;IsNew&quot;]; ok &amp;&amp; v == &quot;1&quot; {} </code></li>
+<li><code>if pkgs[i].ExtInfo[&quot;IsNew&quot;] == &quot;1&quot; {}</code>，</li>
+</ul>
+<p>这两种写法有啥区别吗？</p>
+<p>我们用<code>go build -gcflags=&quot;-d=ssa/check_bce/debug=1&quot;</code> 检测一下</p>
+<p><figure><a class="lightgallery" href="/go-bec/check_bce1.png" title="bec检查" data-thumbnail="/go-bec/check_bce1.png" data-sub-html="<h2>bec检查</h2><p>bec检查</p>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/go-bec/check_bce1.png"
+            data-srcset="/go-bec/check_bce1.png, /go-bec/check_bce1.png 1.5x, /go-bec/check_bce1.png 2x"
+            data-sizes="auto"
+            alt="/go-bec/check_bce1.png" width="1641" height="1681" />
+    </a><figcaption class="image-caption">bec检查</figcaption>
+    </figure></p>
+<p>发现TopNewItemsBce1在 <code>ExtInfo[&quot;IsNew&quot;]</code>处多了一个边界检查，<code>pkgs[i]</code> 这边不可避免要做一次BC, 因为在下面有对<code>i--</code>，虽然我们知道这个地方没有数组越界的风险，但是go编译器目前并不能进行BCE!</p>
+<h3 id="test">test</h3>
+<p>我们使用generateTestPackages生成1000（游戏商品一般个数很少），每一百个设置一个新品，然后跑一下Benchmark看看</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">generateTestPackages</span><span class="p">()</span> <span class="p">[]</span><span class="o">*</span><span class="nx">Pkg</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">pkgs</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">([]</span><span class="o">*</span><span class="nx">Pkg</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="mi">1000</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span> <span class="c1">// Generate 1000 packages for testing
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="nx">pkg</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">Pkg</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">Id</span><span class="p">:</span>      <span class="nx">strconv</span><span class="p">.</span><span class="nf">Itoa</span><span class="p">(</span><span class="nx">i</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">ExtInfo</span><span class="p">:</span> <span class="nb">make</span><span class="p">(</span><span class="kd">map</span><span class="p">[</span><span class="kt">string</span><span class="p">]</span><span class="kt">string</span><span class="p">),</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="nx">i</span><span class="o">%</span><span class="mi">100</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">pkg</span><span class="p">.</span><span class="nx">ExtInfo</span><span class="p">[</span><span class="s">&#34;IsNew&#34;</span><span class="p">]</span> <span class="p">=</span> <span class="s">&#34;1&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">pkg</span><span class="p">.</span><span class="nx">ExtInfo</span><span class="p">[</span><span class="s">&#34;IsNew&#34;</span><span class="p">]</span> <span class="p">=</span> <span class="s">&#34;0&#34;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">pkgs</span> <span class="p">=</span> <span class="nb">append</span><span class="p">(</span><span class="nx">pkgs</span><span class="p">,</span> <span class="nx">pkg</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="nx">pkgs</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkTopNewItemsBce0</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">mixPkgs</span> <span class="o">:=</span> <span class="nf">generateTestPackages</span><span class="p">()</span> <span class="c1">// You need to implement this function to generate test data
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">b</span><span class="p">.</span><span class="nf">ResetTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">TopNewItemsBce0</span><span class="p">(</span><span class="nx">mixPkgs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">BenchmarkTopNewItemsBce1</span><span class="p">(</span><span class="nx">b</span> <span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">B</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">mixPkgs</span> <span class="o">:=</span> <span class="nf">generateTestPackages</span><span class="p">()</span> <span class="c1">// You need to implement this function to generate test data
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">b</span><span class="p">.</span><span class="nf">ResetTimer</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">b</span><span class="p">.</span><span class="nx">N</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nf">TopNewItemsBce1</span><span class="p">(</span><span class="nx">mixPkgs</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>在我的开发机上测试，二者的性能差的竟然有要一倍！</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-txt" data-lang="txt"><span class="line"><span class="cl">goos: linux
+</span></span><span class="line"><span class="cl">goarch: amd64
+</span></span><span class="line"><span class="cl">pkg: learngo/bce
+</span></span><span class="line"><span class="cl">cpu: AMD EPYC 7K62 48-Core Processor
+</span></span><span class="line"><span class="cl">BenchmarkTopNewItemsBce0
+</span></span><span class="line"><span class="cl">BenchmarkTopNewItemsBce0-16                        85531             14188 ns/op            8192 B/op            1 allocs/op
+</span></span><span class="line"><span class="cl">BenchmarkTopNewItemsBce1
+</span></span><span class="line"><span class="cl">BenchmarkTopNewItemsBce1-16                        48134             24912 ns/op            8192 B/op            1 allocs/op
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>所以，对于判断map中每个key取值是不是符合我们的预期，我们最好是使用<code>v, ok := map[key]; ok &amp;&amp; v ==</code> 这种形式。</p>
+<h2 id="1brc">1brc</h2>
+<p><figure><a class="lightgallery" href="/go-bec/1brc.png" title="1brc" data-thumbnail="/go-bec/1brc.png" data-sub-html="<h2>1brc</h2><p>1brc</p>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="/go-bec/1brc.png"
+            data-srcset="/go-bec/1brc.png, /go-bec/1brc.png 1.5x, /go-bec/1brc.png 2x"
+            data-sizes="auto"
+            alt="/go-bec/1brc.png" width="1070" height="1107" />
+    </a><figcaption class="image-caption">1brc</figcaption>
+    </figure>
+github很火的一个<a href="https://github.com/gunnarmorling/1brc" target="_blank" rel="noopener noreffer ">Java “十亿行挑战”（1BRC）&quot;</a> . 虽然该 任务要求使用java完成挑战，但是很多开发者也用其他语言实现了一下，比如go、c++。我们可以看到<a href="https://github.com/gunnarmorling/1brc/blob/main/src/main/go/AlexanderYastrebov/calc.go" target="_blank" rel="noopener noreffer ">Alexander Yastrebov’s</a>（之前go版本最快的实现 2.9s）其中也用了BCE进行代码性能优化&mdash;给编译器明确不会越界的信息</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="o">...</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">// keep short and inlinable
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="nx">getMeasurement</span> <span class="o">:=</span> <span class="kd">func</span><span class="p">(</span><span class="nx">hash</span> <span class="kt">uint64</span><span class="p">,</span> <span class="nx">value</span> <span class="p">[]</span><span class="kt">byte</span><span class="p">)</span> <span class="o">*</span><span class="nx">measurement</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">i</span> <span class="o">:=</span> <span class="nx">hash</span> <span class="o">&amp;</span> <span class="nb">uint64</span><span class="p">(</span><span class="nx">entriesSize</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">entry</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">entries</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="c1">// 通过上面hash &amp; uint64(entriesSize-1)可知 i &lt; entriesSize 
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="o">...</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><a href="https://benhoyt.com/" target="_blank" rel="noopener noreffer ">Ben Hoyt</a> 在他的文章<sup id="fnref:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>中描述了他从最初的简单未优化版本（耗时1分45秒）到最终的优化并行版本（耗时仅3.4秒）的九个不同解决方案, 其中很多点还是很值得看看的，特别是对于处理大量数据的程序，比如：</p>
+<ol>
+<li>
+<p><strong>使用指针值的map</strong>：通过使用<code>map[string]*stats</code>而不是<code>map[string]stats</code>，可以减少哈希操作的次数，因为更新map时不需要重复哈希。</p>
+</li>
+<li>
+<p><strong>手工解析数据</strong>：避免使用标准库中的<code>strconv.ParseFloat</code>，而是编写自定义的解析函数来处理简单的数字格式，这样可以减少不必要的错误处理和复杂性。</p>
+</li>
+<li>
+<p><strong>固定点整数</strong>：对于只有单个小数位的温度数据，使用固定点整数代替浮点数可以提高性能，因为整数运算通常比浮点运算更快。</p>
+</li>
+<li>
+<p><strong>避免使用<code>bytes.Cut</code></strong>：通过从字符串末尾开始解析温度，而不是使用<code>bytes.Cut</code>从开头查找分隔符，可以减少不必要的字符串遍历。</p>
+</li>
+<li>
+<p><strong>避免<code>bufio.Scanner</code></strong>：通过直接读取文件块并手动处理每一行，可以避免<code>bufio.Scanner</code>的额外开销，这样可以更有效地处理数据。</p>
+</li>
+<li>
+<p><strong>自定义哈希表</strong>：实现一个自定义的哈希表可以提高查找和插入的效率，尤其是当标准库的<code>map</code>操作成为性能瓶颈时。</p>
+</li>
+<li>
+<p><strong>并行处理</strong>：将文件分割成多个块，并使用多个goroutine并行处理每个块，然后合并结果，可以显著提高处理速度，尤其是在多核处理器上。</p>
+</li>
+<li>
+<p><strong>内存映射文件</strong>：虽然文章中没有使用，但提到了内存映射文件作为一种优化手段，这可以减少磁盘I/O操作，尤其是在处理大型文件时。</p>
+</li>
+<li>
+<p><strong>代码剖析和性能分析</strong>：使用Go的剖析工具（如<code>pprof</code>）来识别代码中的瓶颈，并针对性地进行优化。</p>
+</li>
+<li>
+<p><strong>简化数据结构</strong>：通过合理设计数据结构，例如使用数组或切片代替map，可以在某些情况下提高性能。</p>
+</li>
+</ol>
+<p>他在最后提了一个问题：</p>
+<blockquote>
+<p>Why does if items[hashIndex].key == nil show as taking 5.01s, but the call to bytes.Equal shows as only 390ms. Surely a slice lookup is much cheaper than a function call?</p>
+</blockquote>
+<p><figure><a class="lightgallery" href="./%e6%b6%88%e9%99%a4be%e4%b9%8b%e5%89%8d%e7%9a%84%20source%20pprof%281%29.png" title="消除be之前的 source pprof" data-thumbnail="./消除be之前的%20source%20pprof(1).png" data-sub-html="<h2>插入了边界检查</h2><p>消除be之前的 source pprof</p>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="./%e6%b6%88%e9%99%a4be%e4%b9%8b%e5%89%8d%e7%9a%84%20source%20pprof%281%29.png"
+            data-srcset="./%e6%b6%88%e9%99%a4be%e4%b9%8b%e5%89%8d%e7%9a%84%20source%20pprof%281%29.png, ./%e6%b6%88%e9%99%a4be%e4%b9%8b%e5%89%8d%e7%9a%84%20source%20pprof%281%29.png 1.5x, ./%e6%b6%88%e9%99%a4be%e4%b9%8b%e5%89%8d%e7%9a%84%20source%20pprof%281%29.png 2x"
+            data-sizes="auto"
+            alt="./消除be之前的%20source%20pprof(1).png" />
+    </a><figcaption class="image-caption">插入了边界检查</figcaption>
+    </figure></p>
+<p>详细看了一下这个<code>items[hashIndex].key == nil</code>地方的汇编代码，可以看到这边进行了边界检查</p>
+<p>我们通过使用Alexander Yastrebov一样的BCE方法，来看看优化之后的cpu pprof source 性能</p>
+<p><figure><a class="lightgallery" href="BCE%281%29.png" title="BCE" data-thumbnail="BCE(1).png" data-sub-html="<h2>BCE之后</h2><p>BCE</p>">
+        <img
+            class="lazyload"
+            src="/svg/loading.min.svg"
+            data-src="BCE%281%29.png"
+            data-srcset="BCE%281%29.png, BCE%281%29.png 1.5x, BCE%281%29.png 2x"
+            data-sizes="auto"
+            alt="BCE(1).png" />
+    </a><figcaption class="image-caption">BCE之后</figcaption>
+    </figure></p>
+<p>所以Ben Hoyt提的问题的原因应该就是go因为边界检查带来的影响。
+这边提一下：当我尝试BCE之后原来Ben Hoyt的r9版本在我Linux机器跑到了3s以内，但是在运行完Alexander Yastrebov’s的mmp版本之后，优化后的和r9版本跑的时间就基本上差不多了，百思不得其解。可惜当时忘了保存3s(印象是2.6s 好像提升的有点离谱)以内的截图。
+后面我重新在windows机器（Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz 32G内存）上测试了一下，大概有3%的提升。
+<img
+        class="lazyload"
+        src="/svg/loading.min.svg"
+        data-src="/go-bec/r9-r10%E5%A4%84%E7%90%86%E6%97%B6%E9%97%B4%E5%AF%B9%E6%AF%94.png"
+        data-srcset="/go-bec/r9-r10%E5%A4%84%E7%90%86%E6%97%B6%E9%97%B4%E5%AF%B9%E6%AF%94.png, /go-bec/r9-r10%E5%A4%84%E7%90%86%E6%97%B6%E9%97%B4%E5%AF%B9%E6%AF%94.png 1.5x, /go-bec/r9-r10%E5%A4%84%E7%90%86%E6%97%B6%E9%97%B4%E5%AF%B9%E6%AF%94.png 2x"
+        data-sizes="auto"
+        alt="/go-bec/r9-r10%E5%A4%84%E7%90%86%E6%97%B6%E9%97%B4%E5%AF%B9%E6%AF%94.png"
+        title="/go-bec/r9-r10%E5%A4%84%E7%90%86%E6%97%B6%E9%97%B4%E5%AF%B9%E6%AF%94.png" width="1420" height="583" /></p>
+<h2 id="小结">小结</h2>
+<p>更多例子可以参考：<sup id="fnref1:2"><a href="#fn:2" class="footnote-ref" role="doc-noteref">2</a></sup>和<sup id="fnref:3"><a href="#fn:3" class="footnote-ref" role="doc-noteref">3</a></sup>，可以看出是否能BCE是需要一些实践验证的，并且BCE之后性能并不一定就有提升。</p>
+<p>参考：</p>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p><a href="https://sourcegraph.com/blog/slow-to-simd" target="_blank" rel="noopener noreffer ">https://sourcegraph.com/blog/slow-to-simd</a>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:2">
+<p><a href="https://benhoyt.com/writings/go-1brc/" target="_blank" rel="noopener noreffer ">https://benhoyt.com/writings/go-1brc/</a>&#160;<a href="#fnref:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a>&#160;<a href="#fnref1:2" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+<li id="fn:3">
+<p><a href="https://go101.org/optimizations/5-bce.html" target="_blank" rel="noopener noreffer ">https://go101.org/optimizations/5-bce.html</a>&#160;<a href="#fnref:3" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2024-02-24</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"><span>
+                            <a class="link-to-markdown" href="/go-bec/index.md" target="_blank">阅读原始文档</a>
+                        </span></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="https://example.com/go-bec/" data-title="Go BEC介绍和实际应用" data-hashtags="go"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="https://example.com/go-bec/" data-hashtag="go"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="分享到 Hacker News" data-sharer="hackernews" data-url="https://example.com/go-bec/" data-title="Go BEC介绍和实际应用"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="分享到 Line" data-sharer="line" data-url="https://example.com/go-bec/" data-title="Go BEC介绍和实际应用"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="https://example.com/go-bec/" data-title="Go BEC介绍和实际应用"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/go/">Go</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/flink-network-stack/" class="prev" rel="prev" title="Flink Network Stack"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>Flink Network Stack</a>
+            <a href="/go-template/" class="next" rel="next" title="Go template">Go template<i class="fas fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+</div>
+<div id="comments"><div id="waline"></div>
+            <script src='https://cdn.jsdelivr.net/npm/@waline/client/dist/Waline.min.js'></script>
+            <script>
+                new Waline({
+                  el: '#waline',
+                  meta: ["nick","mail","link"],
+                  requiredMeta: ["nick","mail"],
+                  login:  null ,
+                  placeholder: "为防恶意灌水攻击，评论前需注册并登录，望见谅~",
+                  serverURL: "https://blog-waline-5iad.vercel.app",
+                  avatarCDN: "https://sdn.geekzu.org/avatar/",
+                  pageSize:  20 ,
+                  avatar: "retro",
+                  lang: "zh-CN",
+                  visitor:  true ,
+                  highlight:  true ,
+                  uploadImage:  false 				  
+                });
+              </script></div></article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line" itemscope itemtype="http://schema.org/CreativeWork"><i class="far fa-copyright fa-fw" aria-hidden="true"></i><span itemprop="copyrightYear">2022 - 2024</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank"></a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="回到顶部">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/css/lightgallery-bundle.min.css"><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/autocomplete.js@0.38.1/dist/autocomplete.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lunr@2.3.9/lunr.min.js"></script><script type="text/javascript" src="/lib/lunr/lunr.stemmer.support.min.js"></script><script type="text/javascript" src="/lib/lunr/lunr.zh.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/lightgallery.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/thumbnail/lg-thumbnail.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lightgallery@2.5.0/plugins/zoom/lg-zoom.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":50},"comment":{},"lightgallery":true,"search":{"highlightTag":"em","lunrIndexURL":"/index.json","lunrLanguageCode":"zh","lunrSegmentitURL":"/lib/lunr/lunr.segmentit.js","maxResultLength":10,"noResultsFound":"没有找到结果","snippetLength":50,"type":"lunr"}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>

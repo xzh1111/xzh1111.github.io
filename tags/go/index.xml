@@ -1,0 +1,142 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>Go - 标签 - Soy_min</title>
+        <link>https://example.com/tags/go/</link>
+        <description>Go - 标签 - Soy_min</description>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright><lastBuildDate>Thu, 14 Mar 2024 16:00:00 &#43;0800</lastBuildDate><atom:link href="https://example.com/tags/go/" rel="self" type="application/rss+xml" /><item>
+    <title>Go template</title>
+    <link>https://example.com/go-template/</link>
+    <pubDate>Thu, 14 Mar 2024 16:00:00 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>https://example.com/go-template/</guid>
+    <description><![CDATA[<h3 id="template">template</h3>
+<ol>
+<li><strong>动作(Action)</strong>
+<ul>
+<li>插值(Interpolation)
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="p">{{</span> <span class="p">.</span> <span class="p">}}</span>                  <span class="c1">// 输出当前对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{{</span> <span class="p">.</span><span class="nx">FieldName</span> <span class="p">}}</span>         <span class="c1">// 访问当前对象的字段或方法
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+<li><strong>管道(Pipelines)</strong>
+<ul>
+<li>可以将一个函数的输出作为另一个函数的输入
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="p">{{</span> <span class="p">.</span><span class="nx">Title</span> <span class="p">|</span> <span class="nx">toUpper</span> <span class="p">|</span> <span class="nx">printf</span> <span class="s">&#34;%s is the title&#34;</span> <span class="p">}}</span> <span class="c1">// 首先将.Title转化为大写，然后格式输出
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+<li><strong>控制结构(Control Structures)</strong>
+<ul>
+<li>条件语句
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="p">{{</span> <span class="k">if</span> <span class="p">.</span><span class="nx">IsTrue</span> <span class="p">}}</span>         <span class="c1">// 如果.IsTrue为真，则执行这里的代码
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">{{</span> <span class="k">else</span> <span class="p">}}</span>               <span class="c1">// 否则，执行这里的代码
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">{{</span> <span class="nx">end</span> <span class="p">}}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>循环语句
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="p">{{</span> <span class="k">range</span> <span class="p">.</span><span class="nx">Items</span> <span class="p">}}</span>       <span class="c1">// 迭代.Items切片的每一项
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">{{</span> <span class="nx">end</span> <span class="p">}}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+<li><strong>变量(Variables)</strong>
+<ul>
+<li>在模板中声明和使用局部变量
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="p">{{</span> <span class="err">$</span><span class="nx">x</span> <span class="o">:=</span> <span class="p">.</span><span class="nx">Var</span> <span class="p">}}</span>         <span class="c1">// 声明变量$x 并赋值为.Var
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+<li><strong>模板引用(Template Reference)</strong>
+<ul>
+<li>在一个模板中调用另一个模板
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="p">{{</span> <span class="nx">template</span> <span class="s">&#34;name&#34;</span> <span class="p">.</span> <span class="p">}}</span>  <span class="c1">// 包含模板&#34;name&#34;
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+<li><strong>注释(Comments)</strong>
+<ul>
+<li>在模板中添加注释
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="p">{{</span><span class="cm">/* 这是一条注释 */</span><span class="p">}}</span>    <span class="c1">// A Comment
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+</ol>]]></description>
+</item>
+<item>
+    <title>Go BEC介绍和实际应用</title>
+    <link>https://example.com/go-bec/</link>
+    <pubDate>Sat, 24 Feb 2024 18:00:29 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>https://example.com/go-bec/</guid>
+    <description><![CDATA[<h2 id="边界检查">边界检查</h2>
+<p>go在array/slice元素的索引和subslice 操作中，运行时将检查所涉及的索引是否越界&ndash;边界检查(Bounds-checking)。如果一个指数超出了范围，就会产生panic ，以防止非法的index造成伤害（如<a href="https://en.wikipedia.org/wiki/Heartbleed" target="_blank" rel="noopener noreffer ">Heartbleed</a>）。边界检查使我们的代码安全运行，另一方面，它们也使我们的代码运行得慢一些。可以通过生成的<a href="https://go.godbolt.org/z/eqEvh6ech" target="_blank" rel="noopener noreffer ">汇编代码</a>，查看是否有插入检查<code> CALL    runtime.panicIndex(SB)</code>. 这种插入的跳转会影响我们能多大程度上利用cpu的pipelining。</p>]]></description>
+</item>
+<item>
+    <title>go 内存安全</title>
+    <link>https://example.com/go-%E5%86%85%E5%AD%98%E5%AE%89%E5%85%A8/</link>
+    <pubDate>Wed, 21 Feb 2024 16:55:29 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>https://example.com/go-%E5%86%85%E5%AD%98%E5%AE%89%E5%85%A8/</guid>
+    <description><![CDATA[<p><em><strong>内存安全</strong></em>关注防止程序访问非法或未预期的内存空间。Go语言被称为“内存安全的编程语言”，是因为它确保了程序在运行过程中不能自由地访问内存，而是必须按照严格的规则来进行。这样可以防止很多常见的编程错误，比如内存泄漏，悬垂指针，缓冲区溢出等。</p>]]></description>
+</item>
+</channel>
+</rss>

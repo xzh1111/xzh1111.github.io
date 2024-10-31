@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>Flink Network Stack - Soy_min</title><meta name="Description" content="Soy_min 个人技术博客"><meta property="og:url" content="https://example.com/flink-network-stack/">
+  <meta property="og:site_name" content="Soy_min">
+  <meta property="og:title" content="Flink Network Stack">
+  <meta property="og:description" content="Apache Flink 中的 Network Stack 是其流式处理引擎的主要组件之一，它负责在分布式系统中进行数据交换和通信。
+数据传输方式: 在Flink中，数据通过网络在任务操作符之间传输。Flink 网络堆栈使用 TCP/IP 套接字进行传输，并为每个连接配备了两个缓冲池。一个用于数据的接收，一个用于数据的发送。">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2024-02-21T16:55:29+08:00">
+    <meta property="article:modified_time" content="2024-02-21T16:55:29+08:00">
+    <meta property="og:image" content="https://example.com/logo.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://example.com/logo.png">
+  <meta name="twitter:title" content="Flink Network Stack">
+  <meta name="twitter:description" content="Apache Flink 中的 Network Stack 是其流式处理引擎的主要组件之一，它负责在分布式系统中进行数据交换和通信。
+数据传输方式: 在Flink中，数据通过网络在任务操作符之间传输。Flink 网络堆栈使用 TCP/IP 套接字进行传输，并为每个连接配备了两个缓冲池。一个用于数据的接收，一个用于数据的发送。">
+<meta name="application-name" content="LoveIt">
+<meta name="apple-mobile-web-app-title" content="LoveIt"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://example.com/flink-network-stack/" /><link rel="prev" href="https://example.com/flink%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0exactly-one-%E8%AF%AD%E4%B9%89%E7%9A%84/" /><link rel="next" href="https://example.com/go-bec/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "Flink Network Stack",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/example.com\/flink-network-stack\/"
+        },"image": [{
+                            "@type": "ImageObject",
+                            "url": "https:\/\/example.com\/images\/Apple-Devices-Preview.png",
+                            "width":  3200 ,
+                            "height":  2048 
+                        }],"genre": "posts","wordcount":  980 ,
+        "url": "https:\/\/example.com\/flink-network-stack\/","datePublished": "2024-02-21T16:55:29+08:00","dateModified": "2024-02-21T16:55:29+08:00","license": "This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.","publisher": {
+            "@type": "Organization",
+            "name": "xxxx","logo": {
+                    "@type": "ImageObject",
+                    "url": "https:\/\/example.com\/images\/avatar.png",
+                    "width":  528 ,
+                    "height":  560 
+                }},"author": {
+                "@type": "Person",
+                "name": "作者"
+            },"description": ""
+    }
+    </script></head>
+    <body data-header-desktop="fixed" data-header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Soy_min"><span class="header-title-pre"><i class='far fa-kiss-wink-heart fa-fw' aria-hidden='true'></i></span>Soy_min</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 所有文章 </a><a class="menu-item" href="/tags/"> 标签 </a><a class="menu-item" href="/categories/"> 分类 </a><a class="menu-item" href="/about/"> 关于 </a><a class="menu-item" href="https://github.com/xzh1111" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw' aria-hidden='true'></i>  </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-desktop">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-desktop" title="搜索">
+                            <i class="fas fa-search fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-desktop" title="清空">
+                            <i class="fas fa-times-circle fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin" aria-hidden="true"></i>
+                        </span>
+                    </span><a href="javascript:void(0);" class="menu-item theme-switch" title="切换主题">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a><a href="javascript:void(0);" class="menu-item language" title="选择语言">
+                    <i class="fa fa-globe" aria-hidden="true"></i>                      
+                    <select class="language-select" id="language-select-desktop" onchange="location = this.value;"><option value="/flink-network-stack/" selected>简体中文</option></select>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Soy_min"><span class="header-title-pre"><i class='far fa-kiss-wink-heart fa-fw' aria-hidden='true'></i></span>Soy_min</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-mobile">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-mobile" title="搜索">
+                            <i class="fas fa-search fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-mobile" title="清空">
+                            <i class="fas fa-times-circle fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin" aria-hidden="true"></i>
+                        </span>
+                    </div>
+                    <a href="javascript:void(0);" class="search-cancel" id="search-cancel-mobile">
+                        取消
+                    </a>
+                </div><a class="menu-item" href="/posts/" title="">所有文章</a><a class="menu-item" href="/tags/" title="">标签</a><a class="menu-item" href="/categories/" title="">分类</a><a class="menu-item" href="/about/" title="">关于</a><a class="menu-item" href="https://github.com/xzh1111" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw' aria-hidden='true'></i></a><a href="javascript:void(0);" class="menu-item theme-switch" title="切换主题">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a><a href="javascript:void(0);" class="menu-item" title="选择语言">
+                    <i class="fa fa-globe fa-fw" aria-hidden="true"></i>
+                    <select class="language-select" onchange="location = this.value;"><option value="/flink-network-stack/" selected>简体中文</option></select>
+                </a></div>
+    </div>
+</header><div class="search-dropdown desktop">
+        <div id="search-dropdown-desktop"></div>
+    </div>
+    <div class="search-dropdown mobile">
+        <div id="search-dropdown-mobile"></div>
+    </div><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">目录</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">Flink Network Stack</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="/" title="Author" rel="author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>作者</a></span>&nbsp;<span class="post-category">收录于 <a href="/categories/flink/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Flink</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-02-21">2024-02-21</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;约 980 字&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;预计阅读 2 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#credit-based-flow-control">Credit-based Flow Control</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><p>Apache Flink 中的 Network Stack 是其流式处理引擎的主要组件之一，它负责在分布式系统中进行数据交换和通信。</p>
+<ol>
+<li>
+<p><strong>数据传输方式</strong>: 在Flink中，数据通过网络在任务操作符之间传输。Flink 网络堆栈使用 TCP/IP 套接字进行传输，并为每个连接配备了两个缓冲池。一个用于数据的接收，一个用于数据的发送。</p>
+</li>
+<li>
+<p><strong>Credit-based Flow Control</strong>: Flink 网络堆栈采用信用基础流程控制机制，以解决背压和数据拥堵问题。它允许接收者通过控制 &ldquo;credit&rdquo; 数量来动态调整其数据接收速度。</p>
+</li>
+<li>
+<p><strong>序列化和反序列化</strong>: 网络层将数据以序列化的方式传输，从而可以在不同的机器之间进行交换。然后，在接收方，数据被反序列化并通过 Record Deserializer 转化为 Java 对象。</p>
+</li>
+<li>
+<p><strong>Large Records Handling</strong>: Flink 对于处理大记录采用了特殊的处理方式。例如，如果一条记录不能完全地装入一个网络缓冲区，那么 Flink 会将这条记录分成多个较小的片段进行传输。</p>
+</li>
+<li>
+<p><strong>交互性和异步性</strong>: Flink Network Stack 采用异步和非阻塞的设计，以支持高吞吐量，并减少任务在数据读取和处理时的等待时间。</p>
+</li>
+<li>
+<p><strong>缓冲与排队</strong>: 法律在发送和接收侧都使用了缓冲区和队列，以优化网络传输。</p>
+</li>
+<li>
+<p><strong>可扩展性和容错性</strong>: Flink 的网络堆栈被设计为能够支持大量的网络连接，并且在出现网络故障时，它能够通过内部机制进行恢复。</p>
+</li>
+</ol>
+<h2 id="credit-based-flow-control">Credit-based Flow Control</h2>
+<p>Credit-based Flow Control 是 Apache Flink 从 1.5 版本开始引入的特性，主要用于解决数据背压(backpressure)问题。它基于生产者-消费者模型，允许消费者控制其接收数据的速度。</p>
+<p>实现这种流控制的基本思想是“credit”。Credit代表了接收者可以处理的数据量。作为发送者的任务可能会有很多缓冲区中预填充了数据要发送，但是它只有在确认接收者有足够的credit（即有足够的空间接收新数据），才会真正发送数据。</p>
+<p>下面是 Credit-based Flow Control 的基本工作流程：</p>
+<ol>
+<li>
+<p><strong>初始化</strong>：算子启动时，接收者（下游任务）分配给每个发送者（上游任务）一定数量的初始credit。</p>
+</li>
+<li>
+<p><strong>数据发送</strong>：只有当发送者检查到目标接收者还有剩余credit时，才会把数据发送出去。每发送一个网络缓冲区的数据，就会消耗掉一份credit。</p>
+</li>
+<li>
+<p><strong>credit的返还</strong>：当接收者消耗了一个网络缓冲区中的数据，它就会向发送者返还一份credit。这表示接收者已经准备好接收新的数据了。</p>
+</li>
+<li>
+<p><strong>数据拥塞与背压</strong>：如果接收者处理不过来输入的数据，它的credit就会逐渐减少。当所有credit用完时，发送者将停止数据的发送，等待新的credit。这样就形成了一种自我调节的机制，发送者不能无限制地生产数据，而是要根据消费者的处理能力调整速率。</p>
+</li>
+</ol>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2024-02-21</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"><span>
+                            <a class="link-to-markdown" href="/flink-network-stack/index.md" target="_blank">阅读原始文档</a>
+                        </span></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="https://example.com/flink-network-stack/" data-title="Flink Network Stack"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="https://example.com/flink-network-stack/"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="分享到 Hacker News" data-sharer="hackernews" data-url="https://example.com/flink-network-stack/" data-title="Flink Network Stack"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="分享到 Line" data-sharer="line" data-url="https://example.com/flink-network-stack/" data-title="Flink Network Stack"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="https://example.com/flink-network-stack/" data-title="Flink Network Stack"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/flink%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0exactly-one-%E8%AF%AD%E4%B9%89%E7%9A%84/" class="prev" rel="prev" title="flink是如何实现exactly-one 语义的"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>flink是如何实现exactly-one 语义的</a>
+            <a href="/go-bec/" class="next" rel="next" title="Go BEC介绍和实际应用">Go BEC介绍和实际应用<i class="fas fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+</div>
+<div id="comments"><div id="waline"></div>
+            <script src='https://cdn.jsdelivr.net/npm/@waline/client/dist/Waline.min.js'></script>
+            <script>
+                new Waline({
+                  el: '#waline',
+                  meta: ["nick","mail","link"],
+                  requiredMeta: ["nick","mail"],
+                  login:  null ,
+                  placeholder: "为防恶意灌水攻击，评论前需注册并登录，望见谅~",
+                  serverURL: "https://blog-waline-5iad.vercel.app",
+                  avatarCDN: "https://sdn.geekzu.org/avatar/",
+                  pageSize:  20 ,
+                  avatar: "retro",
+                  lang: "zh-CN",
+                  visitor:  true ,
+                  highlight:  true ,
+                  uploadImage:  false 				  
+                });
+              </script></div></article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line" itemscope itemtype="http://schema.org/CreativeWork"><i class="far fa-copyright fa-fw" aria-hidden="true"></i><span itemprop="copyrightYear">2022 - 2024</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank"></a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="回到顶部">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/autocomplete.js@0.38.1/dist/autocomplete.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lunr@2.3.9/lunr.min.js"></script><script type="text/javascript" src="/lib/lunr/lunr.stemmer.support.min.js"></script><script type="text/javascript" src="/lib/lunr/lunr.zh.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":50},"comment":{},"search":{"highlightTag":"em","lunrIndexURL":"/index.json","lunrLanguageCode":"zh","lunrSegmentitURL":"/lib/lunr/lunr.segmentit.js","maxResultLength":10,"noResultsFound":"没有找到结果","snippetLength":50,"type":"lunr"}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>

@@ -1,0 +1,23 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>Flink - 标签 - Soy_min</title>
+        <link>https://example.com/tags/flink/</link>
+        <description>Flink - 标签 - Soy_min</description>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright><lastBuildDate>Wed, 21 Feb 2024 16:55:29 &#43;0800</lastBuildDate><atom:link href="https://example.com/tags/flink/" rel="self" type="application/rss+xml" /><item>
+    <title>flink是如何实现exactly-one 语义的</title>
+    <link>https://example.com/flink%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0exactly-one-%E8%AF%AD%E4%B9%89%E7%9A%84/</link>
+    <pubDate>Wed, 21 Feb 2024 16:55:29 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>https://example.com/flink%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0exactly-one-%E8%AF%AD%E4%B9%89%E7%9A%84/</guid>
+    <description><![CDATA[<h2 id="apache-flink-实现-exactly-once-语义步骤">Apache Flink 实现 exactly-once 语义步骤：</h2>
+<ol>
+<li><strong>快照（Snapshot）</strong>：Flink 使用一种称为 &ldquo;异步分布式快照&rdquo; 的技术来捕获数据流的状态。这种技术基于 Chandy-Lamport 算法，可以在不阻塞数据流处理的情况下，捕获数据流的一致性状态。</li>
+<li><strong>重放（Replay）</strong>：当系统出现故障时，Flink 可以从最近的快照开始重放数据流，以恢复到故障发生前的状态。这种重放机制确保了数据处理的一致性。</li>
+<li><strong>端到端的一致性保证</strong>：Flink 不仅在内部保证了 exactly-once 语义，还通过与外部系统（如 Kafka）的集成，实现了端到端的 exactly-once 语义。例如，Flink 可以与 Kafka 集成，使用 Kafka 的事务功能来确保数据的一致性。</li>
+<li><strong>两阶段提交协议（Two-Phase Commit Protocol）</strong>：Flink 还使用了两阶段提交协议来保证 exactly-once 语义。在第一阶段，所有的操作都被预提交并保存在快照中。只有当所有的操作都成功预提交后，才会进入第二阶段，即提交阶段。在提交阶段，所有的操作都会被正式提交。如果在预提交阶段有任何操作失败，那么整个事务都会被回滚，从而保证了数据的一致性。</li>
+</ol>
+<h2 id="快照技术">快照技术</h2>
+<p>Apache Flink 使用的快照技术是基于 Chandy-Lamport 分布式快照算法的。下面是这个快照技术的一些关键点：</p>]]></description>
+</item>
+</channel>
+</rss>

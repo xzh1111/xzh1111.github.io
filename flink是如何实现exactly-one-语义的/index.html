@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noodp" />
+        <title>flink是如何实现exactly-one 语义的 - Soy_min</title><meta name="Description" content="Soy_min 个人技术博客"><meta property="og:url" content="https://example.com/flink%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0exactly-one-%E8%AF%AD%E4%B9%89%E7%9A%84/">
+  <meta property="og:site_name" content="Soy_min">
+  <meta property="og:title" content="flink是如何实现exactly-one 语义的">
+  <meta property="og:description" content="Apache Flink 实现 exactly-once 语义步骤： 快照（Snapshot）：Flink 使用一种称为 “异步分布式快照” 的技术来捕获数据流的状态。这种技术基于 Chandy-Lamport 算法，可以在不阻塞数据流处理的情况下，捕获数据流的一致性状态。 重放（Replay）：当系统出现故障时，Flink 可以从最近的快照开始重放数据流，以恢复到故障发生前的状态。这种重放机制确保了数据处理的一致性。 端到端的一致性保证：Flink 不仅在内部保证了 exactly-once 语义，还通过与外部系统（如 Kafka）的集成，实现了端到端的 exactly-once 语义。例如，Flink 可以与 Kafka 集成，使用 Kafka 的事务功能来确保数据的一致性。 两阶段提交协议（Two-Phase Commit Protocol）：Flink 还使用了两阶段提交协议来保证 exactly-once 语义。在第一阶段，所有的操作都被预提交并保存在快照中。只有当所有的操作都成功预提交后，才会进入第二阶段，即提交阶段。在提交阶段，所有的操作都会被正式提交。如果在预提交阶段有任何操作失败，那么整个事务都会被回滚，从而保证了数据的一致性。 快照技术 Apache Flink 使用的快照技术是基于 Chandy-Lamport 分布式快照算法的。下面是这个快照技术的一些关键点：">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2024-02-21T16:55:29+08:00">
+    <meta property="article:modified_time" content="2024-02-21T16:55:29+08:00">
+    <meta property="article:tag" content="Flink">
+    <meta property="og:image" content="https://example.com/logo.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://example.com/logo.png">
+  <meta name="twitter:title" content="flink是如何实现exactly-one 语义的">
+  <meta name="twitter:description" content="Apache Flink 实现 exactly-once 语义步骤： 快照（Snapshot）：Flink 使用一种称为 “异步分布式快照” 的技术来捕获数据流的状态。这种技术基于 Chandy-Lamport 算法，可以在不阻塞数据流处理的情况下，捕获数据流的一致性状态。 重放（Replay）：当系统出现故障时，Flink 可以从最近的快照开始重放数据流，以恢复到故障发生前的状态。这种重放机制确保了数据处理的一致性。 端到端的一致性保证：Flink 不仅在内部保证了 exactly-once 语义，还通过与外部系统（如 Kafka）的集成，实现了端到端的 exactly-once 语义。例如，Flink 可以与 Kafka 集成，使用 Kafka 的事务功能来确保数据的一致性。 两阶段提交协议（Two-Phase Commit Protocol）：Flink 还使用了两阶段提交协议来保证 exactly-once 语义。在第一阶段，所有的操作都被预提交并保存在快照中。只有当所有的操作都成功预提交后，才会进入第二阶段，即提交阶段。在提交阶段，所有的操作都会被正式提交。如果在预提交阶段有任何操作失败，那么整个事务都会被回滚，从而保证了数据的一致性。 快照技术 Apache Flink 使用的快照技术是基于 Chandy-Lamport 分布式快照算法的。下面是这个快照技术的一些关键点：">
+<meta name="application-name" content="LoveIt">
+<meta name="apple-mobile-web-app-title" content="LoveIt"><meta name="theme-color" content="#ffffff"><meta name="msapplication-TileColor" content="#da532c"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5"><link rel="manifest" href="/site.webmanifest"><link rel="canonical" href="https://example.com/flink%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0exactly-one-%E8%AF%AD%E4%B9%89%E7%9A%84/" /><link rel="prev" href="https://example.com/go-%E5%86%85%E5%AD%98%E5%AE%89%E5%85%A8/" /><link rel="next" href="https://example.com/flink-network-stack/" /><link rel="stylesheet" href="/css/style.min.css"><link rel="preload" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css"></noscript><link rel="preload" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+        <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css"></noscript><script type="application/ld+json">
+    {
+        "@context": "http://schema.org",
+        "@type": "BlogPosting",
+        "headline": "flink是如何实现exactly-one 语义的",
+        "inLanguage": "zh-CN",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https:\/\/example.com\/flink%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0exactly-one-%E8%AF%AD%E4%B9%89%E7%9A%84\/"
+        },"image": [{
+                            "@type": "ImageObject",
+                            "url": "https:\/\/example.com\/images\/Apple-Devices-Preview.png",
+                            "width":  3200 ,
+                            "height":  2048 
+                        }],"genre": "posts","keywords": "flink","wordcount":  1332 ,
+        "url": "https:\/\/example.com\/flink%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0exactly-one-%E8%AF%AD%E4%B9%89%E7%9A%84\/","datePublished": "2024-02-21T16:55:29+08:00","dateModified": "2024-02-21T16:55:29+08:00","license": "This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.","publisher": {
+            "@type": "Organization",
+            "name": "xxxx","logo": {
+                    "@type": "ImageObject",
+                    "url": "https:\/\/example.com\/images\/avatar.png",
+                    "width":  528 ,
+                    "height":  560 
+                }},"author": {
+                "@type": "Person",
+                "name": "作者"
+            },"description": ""
+    }
+    </script></head>
+    <body data-header-desktop="fixed" data-header-mobile="auto"><script type="text/javascript">(window.localStorage && localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : ('auto' === 'auto' ? window.matchMedia('(prefers-color-scheme: dark)').matches : 'auto' === 'dark')) && document.body.setAttribute('theme', 'dark');</script>
+
+        <div id="mask"></div><div class="wrapper"><header class="desktop" id="header-desktop">
+    <div class="header-wrapper">
+        <div class="header-title">
+            <a href="/" title="Soy_min"><span class="header-title-pre"><i class='far fa-kiss-wink-heart fa-fw' aria-hidden='true'></i></span>Soy_min</a>
+        </div>
+        <div class="menu">
+            <div class="menu-inner"><a class="menu-item" href="/posts/"> 所有文章 </a><a class="menu-item" href="/tags/"> 标签 </a><a class="menu-item" href="/categories/"> 分类 </a><a class="menu-item" href="/about/"> 关于 </a><a class="menu-item" href="https://github.com/xzh1111" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw' aria-hidden='true'></i>  </a><span class="menu-item delimiter"></span><span class="menu-item search" id="search-desktop">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-desktop">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-desktop" title="搜索">
+                            <i class="fas fa-search fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-desktop" title="清空">
+                            <i class="fas fa-times-circle fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-desktop">
+                            <i class="fas fa-spinner fa-fw fa-spin" aria-hidden="true"></i>
+                        </span>
+                    </span><a href="javascript:void(0);" class="menu-item theme-switch" title="切换主题">
+                    <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+                </a><a href="javascript:void(0);" class="menu-item language" title="选择语言">
+                    <i class="fa fa-globe" aria-hidden="true"></i>                      
+                    <select class="language-select" id="language-select-desktop" onchange="location = this.value;"><option value="/flink%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0exactly-one-%E8%AF%AD%E4%B9%89%E7%9A%84/" selected>简体中文</option></select>
+                </a></div>
+        </div>
+    </div>
+</header><header class="mobile" id="header-mobile">
+    <div class="header-container">
+        <div class="header-wrapper">
+            <div class="header-title">
+                <a href="/" title="Soy_min"><span class="header-title-pre"><i class='far fa-kiss-wink-heart fa-fw' aria-hidden='true'></i></span>Soy_min</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle-mobile">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="menu" id="menu-mobile"><div class="search-wrapper">
+                    <div class="search mobile" id="search-mobile">
+                        <input type="text" placeholder="搜索文章标题或内容..." id="search-input-mobile">
+                        <a href="javascript:void(0);" class="search-button search-toggle" id="search-toggle-mobile" title="搜索">
+                            <i class="fas fa-search fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <a href="javascript:void(0);" class="search-button search-clear" id="search-clear-mobile" title="清空">
+                            <i class="fas fa-times-circle fa-fw" aria-hidden="true"></i>
+                        </a>
+                        <span class="search-button search-loading" id="search-loading-mobile">
+                            <i class="fas fa-spinner fa-fw fa-spin" aria-hidden="true"></i>
+                        </span>
+                    </div>
+                    <a href="javascript:void(0);" class="search-cancel" id="search-cancel-mobile">
+                        取消
+                    </a>
+                </div><a class="menu-item" href="/posts/" title="">所有文章</a><a class="menu-item" href="/tags/" title="">标签</a><a class="menu-item" href="/categories/" title="">分类</a><a class="menu-item" href="/about/" title="">关于</a><a class="menu-item" href="https://github.com/xzh1111" title="GitHub" rel="noopener noreffer" target="_blank"><i class='fab fa-github fa-fw' aria-hidden='true'></i></a><a href="javascript:void(0);" class="menu-item theme-switch" title="切换主题">
+                <i class="fas fa-adjust fa-fw" aria-hidden="true"></i>
+            </a><a href="javascript:void(0);" class="menu-item" title="选择语言">
+                    <i class="fa fa-globe fa-fw" aria-hidden="true"></i>
+                    <select class="language-select" onchange="location = this.value;"><option value="/flink%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0exactly-one-%E8%AF%AD%E4%B9%89%E7%9A%84/" selected>简体中文</option></select>
+                </a></div>
+    </div>
+</header><div class="search-dropdown desktop">
+        <div id="search-dropdown-desktop"></div>
+    </div>
+    <div class="search-dropdown mobile">
+        <div id="search-dropdown-mobile"></div>
+    </div><main class="main">
+                <div class="container"><div class="toc" id="toc-auto">
+            <h2 class="toc-title">目录</h2>
+            <div class="toc-content" id="toc-content-auto"></div>
+        </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">flink是如何实现exactly-one 语义的</h1><div class="post-meta">
+            <div class="post-meta-line"><span class="post-author"><a href="/" title="Author" rel="author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>作者</a></span>&nbsp;<span class="post-category">收录于 <a href="/categories/flink/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Flink</a></span></div>
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-02-21">2024-02-21</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;约 1332 字&nbsp;
+                <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;预计阅读 3 分钟&nbsp;</div>
+        </div><div class="details toc" id="toc-static"  data-kept="">
+                <div class="details-summary toc-title">
+                    <span>目录</span>
+                    <span><i class="details-icon fas fa-angle-right" aria-hidden="true"></i></span>
+                </div>
+                <div class="details-content toc-content" id="toc-content-static"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#apache-flink-实现-exactly-once-语义步骤">Apache Flink 实现 exactly-once 语义步骤：</a></li>
+    <li><a href="#快照技术">快照技术</a></li>
+    <li><a href="#重放数据流">重放数据流</a></li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav></div>
+            </div><div class="content" id="content"><h2 id="apache-flink-实现-exactly-once-语义步骤">Apache Flink 实现 exactly-once 语义步骤：</h2>
+<ol>
+<li><strong>快照（Snapshot）</strong>：Flink 使用一种称为 &ldquo;异步分布式快照&rdquo; 的技术来捕获数据流的状态。这种技术基于 Chandy-Lamport 算法，可以在不阻塞数据流处理的情况下，捕获数据流的一致性状态。</li>
+<li><strong>重放（Replay）</strong>：当系统出现故障时，Flink 可以从最近的快照开始重放数据流，以恢复到故障发生前的状态。这种重放机制确保了数据处理的一致性。</li>
+<li><strong>端到端的一致性保证</strong>：Flink 不仅在内部保证了 exactly-once 语义，还通过与外部系统（如 Kafka）的集成，实现了端到端的 exactly-once 语义。例如，Flink 可以与 Kafka 集成，使用 Kafka 的事务功能来确保数据的一致性。</li>
+<li><strong>两阶段提交协议（Two-Phase Commit Protocol）</strong>：Flink 还使用了两阶段提交协议来保证 exactly-once 语义。在第一阶段，所有的操作都被预提交并保存在快照中。只有当所有的操作都成功预提交后，才会进入第二阶段，即提交阶段。在提交阶段，所有的操作都会被正式提交。如果在预提交阶段有任何操作失败，那么整个事务都会被回滚，从而保证了数据的一致性。</li>
+</ol>
+<h2 id="快照技术">快照技术</h2>
+<p>Apache Flink 使用的快照技术是基于 Chandy-Lamport 分布式快照算法的。下面是这个快照技术的一些关键点：</p>
+<ol>
+<li><strong>异步</strong>：Flink 的快照技术是异步的，这意味着它不会阻塞数据流的处理。当系统需要创建一个快照时，它会在数据流中插入一个特殊的标记，称为 &ldquo;barrier&rdquo;。当每个操作符接收到这个 barrier 时，它会记录下当前的状态，然后继续处理数据流。这样，系统可以在不停止数据流处理的情况下，捕获数据流的状态。</li>
+<li><strong>分布式</strong>：Flink 的快照技术是分布式的，这意味着它可以在分布式系统中工作。每个操作符都会独立地记录自己的状态，然后这些状态会被收集起来，形成一个全局的快照。这个全局的快照代表了数据流在某一时刻的状态。</li>
+<li><strong>一致性</strong>：尽管 Flink 的快照技术是异步和分布式的，但它仍然可以保证快照的一致性。这是因为，当所有的操作符都接收到同一个 barrier 时，它们记录的状态是一致的。这样，即使在分布式系统中，也可以创建出一致的快照。</li>
+<li><strong>故障恢复</strong>：当系统出现故障时，Flink 可以使用快照来恢复数据流的状态。系统会从最近的快照开始，重放数据流，以恢复到故障发生前的状态。这种重放机制确保了数据处理的一致性。</li>
+</ol>
+<h2 id="重放数据流">重放数据流</h2>
+<p>在 Flink 中，重放数据流主要是通过从最近的快照开始，重新处理从该快照时间点之后的数据。具体来说，当系统出现故障时，Flink 会找到最近的一次快照，然后从这个快照中恢复每个操作符的状态。接着，Flink 会从数据源开始，重新处理从快照时间点之后的数据。这样，系统就可以恢复到故障发生前的状态。</p>
+<p>至于 &ldquo;操作符的状态&rdquo;，这主要包括两部分：</p>
+<ol>
+<li><strong>内部状态</strong>：这是操作符在处理数据流时，内部维护的状态。例如，如果一个操作符是用来计算滑动窗口的平均值，那么它的内部状态可能包括当前窗口的所有元素，以及这些元素的总和。当系统需要创建一个快照时，这个操作符会保存这些内部状态。</li>
+<li><strong>输入和输出缓冲区</strong>：除了内部状态，操作符还会保存其输入和输出缓冲区的状态。这是因为，当系统恢复时，操作符需要从恰好的位置开始，重新处理数据。因此，它需要知道在快照时，哪些数据已经被处理，哪些数据还在缓冲区中等待处理。</li>
+</ol>
+<h2 id="参考">参考</h2>
+<ol>
+<li>Apache Flink 官方文档：<strong><a href="https://nightlies.apache.org/flink/flink-docs-release-1.3/internals/stream_checkpointing.html" target="_blank" rel="noopener noreffer ">Data Streaming Fault Tolerance</a></strong></li>
+<li>Apache Flink 官方博客：<strong><a href="https://flink.apache.org/2019/06/05/a-deep-dive-into-flinks-network-stack/" target="_blank" rel="noopener noreffer ">A Deep-Dive into Flink&rsquo;s Network Stack</a></strong></li>
+</ol>
+</div><div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>更新于 2024-02-21</span>
+            </div></div>
+        <div class="post-info-line">
+            <div class="post-info-md"><span>
+                            <a class="link-to-markdown" href="/flink%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0exactly-one-%E8%AF%AD%E4%B9%89%E7%9A%84/index.md" target="_blank">阅读原始文档</a>
+                        </span></div>
+            <div class="post-info-share">
+                <span><a href="javascript:void(0);" title="分享到 Twitter" data-sharer="twitter" data-url="https://example.com/flink%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0exactly-one-%E8%AF%AD%E4%B9%89%E7%9A%84/" data-title="flink是如何实现exactly-one 语义的" data-hashtags="flink"><i class="fab fa-twitter fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="分享到 Facebook" data-sharer="facebook" data-url="https://example.com/flink%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0exactly-one-%E8%AF%AD%E4%B9%89%E7%9A%84/" data-hashtag="flink"><i class="fab fa-facebook-square fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="分享到 Hacker News" data-sharer="hackernews" data-url="https://example.com/flink%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0exactly-one-%E8%AF%AD%E4%B9%89%E7%9A%84/" data-title="flink是如何实现exactly-one 语义的"><i class="fab fa-hacker-news fa-fw" aria-hidden="true"></i></a><a href="javascript:void(0);" title="分享到 Line" data-sharer="line" data-url="https://example.com/flink%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0exactly-one-%E8%AF%AD%E4%B9%89%E7%9A%84/" data-title="flink是如何实现exactly-one 语义的"><i data-svg-src="https://cdn.jsdelivr.net/npm/simple-icons@7.3.0/icons/line.svg" aria-hidden="true"></i></a><a href="javascript:void(0);" title="分享到 微博" data-sharer="weibo" data-url="https://example.com/flink%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0exactly-one-%E8%AF%AD%E4%B9%89%E7%9A%84/" data-title="flink是如何实现exactly-one 语义的"><i class="fab fa-weibo fa-fw" aria-hidden="true"></i></a></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section class="post-tags"><i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/flink/">Flink</a></section>
+        <section>
+            <span><a href="javascript:void(0);" onclick="window.history.back();">返回</a></span>&nbsp;|&nbsp;<span><a href="/">主页</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav"><a href="/go-%E5%86%85%E5%AD%98%E5%AE%89%E5%85%A8/" class="prev" rel="prev" title="go 内存安全"><i class="fas fa-angle-left fa-fw" aria-hidden="true"></i>go 内存安全</a>
+            <a href="/flink-network-stack/" class="next" rel="next" title="Flink Network Stack">Flink Network Stack<i class="fas fa-angle-right fa-fw" aria-hidden="true"></i></a></div>
+</div>
+<div id="comments"><div id="waline"></div>
+            <script src='https://cdn.jsdelivr.net/npm/@waline/client/dist/Waline.min.js'></script>
+            <script>
+                new Waline({
+                  el: '#waline',
+                  meta: ["nick","mail","link"],
+                  requiredMeta: ["nick","mail"],
+                  login:  null ,
+                  placeholder: "为防恶意灌水攻击，评论前需注册并登录，望见谅~",
+                  serverURL: "https://blog-waline-5iad.vercel.app",
+                  avatarCDN: "https://sdn.geekzu.org/avatar/",
+                  pageSize:  20 ,
+                  avatar: "retro",
+                  lang: "zh-CN",
+                  visitor:  true ,
+                  highlight:  true ,
+                  uploadImage:  false 				  
+                });
+              </script></div></article></div>
+            </main><footer class="footer">
+        <div class="footer-container"><div class="footer-line" itemscope itemtype="http://schema.org/CreativeWork"><i class="far fa-copyright fa-fw" aria-hidden="true"></i><span itemprop="copyrightYear">2022 - 2024</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="/" target="_blank"></a></span>&nbsp;|&nbsp;<span class="license"><a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+        </div>
+    </footer></div>
+
+        <div id="fixed-buttons"><a href="#" id="back-to-top" class="fixed-button" title="回到顶部">
+                <i class="fas fa-arrow-up fa-fw" aria-hidden="true"></i>
+            </a><a href="#" id="view-comments" class="fixed-button" title="查看评论">
+                <i class="fas fa-comment fa-fw" aria-hidden="true"></i>
+            </a>
+        </div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/autocomplete.js@0.38.1/dist/autocomplete.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lunr@2.3.9/lunr.min.js"></script><script type="text/javascript" src="/lib/lunr/lunr.stemmer.support.min.js"></script><script type="text/javascript" src="/lib/lunr/lunr.zh.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js"></script><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js"></script><script type="text/javascript">window.config={"code":{"copyTitle":"复制到剪贴板","maxShownLines":50},"comment":{},"search":{"highlightTag":"em","lunrIndexURL":"/index.json","lunrLanguageCode":"zh","lunrSegmentitURL":"/lib/lunr/lunr.segmentit.js","maxResultLength":10,"noResultsFound":"没有找到结果","snippetLength":50,"type":"lunr"}};</script><script type="text/javascript" src="/js/theme.min.js"></script></body>
+</html>

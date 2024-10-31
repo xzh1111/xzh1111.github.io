@@ -1,0 +1,210 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+    <channel>
+        <title>所有文章 - Soy_min</title>
+        <link>https://example.com/posts/</link>
+        <description>所有文章 | Soy_min</description>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright><lastBuildDate>Wed, 30 Oct 2024 14:26:02 &#43;0000</lastBuildDate><atom:link href="https://example.com/posts/" rel="self" type="application/rss+xml" /><item>
+    <title>Echo框架</title>
+    <link>https://example.com/echo%E6%A1%86%E6%9E%B6/</link>
+    <pubDate>Thu, 21 Mar 2024 15:13:41 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>https://example.com/echo%E6%A1%86%E6%9E%B6/</guid>
+    <description><![CDATA[]]></description>
+</item>
+<item>
+    <title>寻找两个正序数组中位数</title>
+    <link>https://example.com/%E5%AF%BB%E6%89%BE%E4%B8%A4%E4%B8%AA%E6%AD%A3%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E4%BD%8D%E6%95%B0/</link>
+    <pubDate>Tue, 19 Mar 2024 14:52:56 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>https://example.com/%E5%AF%BB%E6%89%BE%E4%B8%A4%E4%B8%AA%E6%AD%A3%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E4%BD%8D%E6%95%B0/</guid>
+    <description><![CDATA[<h2 id="简单实现">简单实现</h2>
+<p>寻找两个正序数组的中位数可以通过归并排序的思想，先将两个数组合并为一个有序数组，然后根据数组的长度是奇数还是偶数来找出中位数。以下是一个简单的实现：</p>]]></description>
+</item>
+<item>
+    <title>Go template</title>
+    <link>https://example.com/go-template/</link>
+    <pubDate>Thu, 14 Mar 2024 16:00:00 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>https://example.com/go-template/</guid>
+    <description><![CDATA[<h3 id="template">template</h3>
+<ol>
+<li><strong>动作(Action)</strong>
+<ul>
+<li>插值(Interpolation)
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="p">{{</span> <span class="p">.</span> <span class="p">}}</span>                  <span class="c1">// 输出当前对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">{{</span> <span class="p">.</span><span class="nx">FieldName</span> <span class="p">}}</span>         <span class="c1">// 访问当前对象的字段或方法
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+<li><strong>管道(Pipelines)</strong>
+<ul>
+<li>可以将一个函数的输出作为另一个函数的输入
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="p">{{</span> <span class="p">.</span><span class="nx">Title</span> <span class="p">|</span> <span class="nx">toUpper</span> <span class="p">|</span> <span class="nx">printf</span> <span class="s">&#34;%s is the title&#34;</span> <span class="p">}}</span> <span class="c1">// 首先将.Title转化为大写，然后格式输出
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+<li><strong>控制结构(Control Structures)</strong>
+<ul>
+<li>条件语句
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="p">{{</span> <span class="k">if</span> <span class="p">.</span><span class="nx">IsTrue</span> <span class="p">}}</span>         <span class="c1">// 如果.IsTrue为真，则执行这里的代码
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">{{</span> <span class="k">else</span> <span class="p">}}</span>               <span class="c1">// 否则，执行这里的代码
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">{{</span> <span class="nx">end</span> <span class="p">}}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>循环语句
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="p">{{</span> <span class="k">range</span> <span class="p">.</span><span class="nx">Items</span> <span class="p">}}</span>       <span class="c1">// 迭代.Items切片的每一项
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="o">...</span>
+</span></span><span class="line"><span class="cl"><span class="p">{{</span> <span class="nx">end</span> <span class="p">}}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+<li><strong>变量(Variables)</strong>
+<ul>
+<li>在模板中声明和使用局部变量
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="p">{{</span> <span class="err">$</span><span class="nx">x</span> <span class="o">:=</span> <span class="p">.</span><span class="nx">Var</span> <span class="p">}}</span>         <span class="c1">// 声明变量$x 并赋值为.Var
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+<li><strong>模板引用(Template Reference)</strong>
+<ul>
+<li>在一个模板中调用另一个模板
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="p">{{</span> <span class="nx">template</span> <span class="s">&#34;name&#34;</span> <span class="p">.</span> <span class="p">}}</span>  <span class="c1">// 包含模板&#34;name&#34;
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+<li><strong>注释(Comments)</strong>
+<ul>
+<li>在模板中添加注释
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="p">{{</span><span class="cm">/* 这是一条注释 */</span><span class="p">}}</span>    <span class="c1">// A Comment
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ul>
+</li>
+</ol>]]></description>
+</item>
+<item>
+    <title>Go BEC介绍和实际应用</title>
+    <link>https://example.com/go-bec/</link>
+    <pubDate>Sat, 24 Feb 2024 18:00:29 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>https://example.com/go-bec/</guid>
+    <description><![CDATA[<h2 id="边界检查">边界检查</h2>
+<p>go在array/slice元素的索引和subslice 操作中，运行时将检查所涉及的索引是否越界&ndash;边界检查(Bounds-checking)。如果一个指数超出了范围，就会产生panic ，以防止非法的index造成伤害（如<a href="https://en.wikipedia.org/wiki/Heartbleed" target="_blank" rel="noopener noreffer ">Heartbleed</a>）。边界检查使我们的代码安全运行，另一方面，它们也使我们的代码运行得慢一些。可以通过生成的<a href="https://go.godbolt.org/z/eqEvh6ech" target="_blank" rel="noopener noreffer ">汇编代码</a>，查看是否有插入检查<code> CALL    runtime.panicIndex(SB)</code>. 这种插入的跳转会影响我们能多大程度上利用cpu的pipelining。</p>]]></description>
+</item>
+<item>
+    <title>Flink Network Stack</title>
+    <link>https://example.com/flink-network-stack/</link>
+    <pubDate>Wed, 21 Feb 2024 16:55:29 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>https://example.com/flink-network-stack/</guid>
+    <description><![CDATA[<p>Apache Flink 中的 Network Stack 是其流式处理引擎的主要组件之一，它负责在分布式系统中进行数据交换和通信。</p>
+<ol>
+<li>
+<p><strong>数据传输方式</strong>: 在Flink中，数据通过网络在任务操作符之间传输。Flink 网络堆栈使用 TCP/IP 套接字进行传输，并为每个连接配备了两个缓冲池。一个用于数据的接收，一个用于数据的发送。</p>]]></description>
+</item>
+<item>
+    <title>flink是如何实现exactly-one 语义的</title>
+    <link>https://example.com/flink%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0exactly-one-%E8%AF%AD%E4%B9%89%E7%9A%84/</link>
+    <pubDate>Wed, 21 Feb 2024 16:55:29 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>https://example.com/flink%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0exactly-one-%E8%AF%AD%E4%B9%89%E7%9A%84/</guid>
+    <description><![CDATA[<h2 id="apache-flink-实现-exactly-once-语义步骤">Apache Flink 实现 exactly-once 语义步骤：</h2>
+<ol>
+<li><strong>快照（Snapshot）</strong>：Flink 使用一种称为 &ldquo;异步分布式快照&rdquo; 的技术来捕获数据流的状态。这种技术基于 Chandy-Lamport 算法，可以在不阻塞数据流处理的情况下，捕获数据流的一致性状态。</li>
+<li><strong>重放（Replay）</strong>：当系统出现故障时，Flink 可以从最近的快照开始重放数据流，以恢复到故障发生前的状态。这种重放机制确保了数据处理的一致性。</li>
+<li><strong>端到端的一致性保证</strong>：Flink 不仅在内部保证了 exactly-once 语义，还通过与外部系统（如 Kafka）的集成，实现了端到端的 exactly-once 语义。例如，Flink 可以与 Kafka 集成，使用 Kafka 的事务功能来确保数据的一致性。</li>
+<li><strong>两阶段提交协议（Two-Phase Commit Protocol）</strong>：Flink 还使用了两阶段提交协议来保证 exactly-once 语义。在第一阶段，所有的操作都被预提交并保存在快照中。只有当所有的操作都成功预提交后，才会进入第二阶段，即提交阶段。在提交阶段，所有的操作都会被正式提交。如果在预提交阶段有任何操作失败，那么整个事务都会被回滚，从而保证了数据的一致性。</li>
+</ol>
+<h2 id="快照技术">快照技术</h2>
+<p>Apache Flink 使用的快照技术是基于 Chandy-Lamport 分布式快照算法的。下面是这个快照技术的一些关键点：</p>]]></description>
+</item>
+<item>
+    <title>go 内存安全</title>
+    <link>https://example.com/go-%E5%86%85%E5%AD%98%E5%AE%89%E5%85%A8/</link>
+    <pubDate>Wed, 21 Feb 2024 16:55:29 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>https://example.com/go-%E5%86%85%E5%AD%98%E5%AE%89%E5%85%A8/</guid>
+    <description><![CDATA[<p><em><strong>内存安全</strong></em>关注防止程序访问非法或未预期的内存空间。Go语言被称为“内存安全的编程语言”，是因为它确保了程序在运行过程中不能自由地访问内存，而是必须按照严格的规则来进行。这样可以防止很多常见的编程错误，比如内存泄漏，悬垂指针，缓冲区溢出等。</p>]]></description>
+</item>
+<item>
+    <title>关于</title>
+    <link>https://example.com/about/</link>
+    <pubDate>Mon, 01 Jan 2024 12:04:00 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>https://example.com/about/</guid>
+    <description><![CDATA[关于]]></description>
+</item>
+<item>
+    <title>fink</title>
+    <link>https://example.com/posts/categories/flink/</link>
+    <pubDate>Mon, 01 Jan 0001 00:00:00 &#43;0000</pubDate>
+    <author>作者</author>
+    <guid>https://example.com/posts/categories/flink/</guid>
+    <description><![CDATA[<p><a href="/flink/" rel="">fink</a></p>]]></description>
+</item>
+<item>
+    <title>golang</title>
+    <link>https://example.com/posts/categories/go/</link>
+    <pubDate>Mon, 01 Jan 0001 00:00:00 &#43;0000</pubDate>
+    <author>作者</author>
+    <guid>https://example.com/posts/categories/go/</guid>
+    <description><![CDATA[<p><a href="/go-bec/" rel="">go bec</a></p>]]></description>
+</item>
+</channel>
+</rss>
