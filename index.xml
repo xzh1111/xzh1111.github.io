@@ -3,7 +3,7 @@
         <title>Soy_min</title>
         <link>https://example.com/</link>
         <description>Soy_min 个人技术博客</description>
-        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright><lastBuildDate>Wed, 30 Oct 2024 14:26:02 &#43;0000</lastBuildDate>
+        <generator>Hugo -- gohugo.io</generator><language>zh-CN</language><copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright><lastBuildDate>Sun, 03 Nov 2024 20:50:05 &#43;0800</lastBuildDate>
             <atom:link href="https://example.com/index.xml" rel="self" type="application/rss+xml" />
         <item>
     <title>Wsl配置使用宿主机网络代理&amp;go安装</title>
@@ -66,6 +66,14 @@
 </span></span></code></pre></td></tr></table>
 </div>
 </div><p>比如我选择：Ubuntu-24.04</p>]]></description>
+</item>
+<item>
+    <title>关于</title>
+    <link>https://example.com/about/</link>
+    <pubDate>Thu, 10 Oct 2024 12:04:00 &#43;0800</pubDate>
+    <author>作者</author>
+    <guid>https://example.com/about/</guid>
+    <description><![CDATA[<p>18毕业后，就进入了华为，一开始在无线研发部门做4G基站软件开发，刚出来的时候没有什么经验，想着有份工作就不错了。后面，大概工作了一年，感觉这个路太专太窄了，不利于后面职业发展，所以转岗去了消费者部门，做广告推荐系统。在21年的时候跳槽到了腾讯，主要做腾讯游戏商业化相关的推荐场景，偏工程方向</p>]]></description>
 </item>
 <item>
     <title>寻找两个正序数组中位数</title>
@@ -237,14 +245,6 @@
     <author>作者</author>
     <guid>https://example.com/go-%E5%86%85%E5%AD%98%E5%AE%89%E5%85%A8/</guid>
     <description><![CDATA[<p><em><strong>内存安全</strong></em>关注防止程序访问非法或未预期的内存空间。Go语言被称为“内存安全的编程语言”，是因为它确保了程序在运行过程中不能自由地访问内存，而是必须按照严格的规则来进行。这样可以防止很多常见的编程错误，比如内存泄漏，悬垂指针，缓冲区溢出等。</p>]]></description>
-</item>
-<item>
-    <title>关于</title>
-    <link>https://example.com/about/</link>
-    <pubDate>Mon, 01 Jan 2024 12:04:00 &#43;0800</pubDate>
-    <author>作者</author>
-    <guid>https://example.com/about/</guid>
-    <description><![CDATA[关于]]></description>
 </item>
 </channel>
 </rss>

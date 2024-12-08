@@ -108,7 +108,7 @@
         data-srcset="/images/avatar.png, /images/avatar.png 1.5x, /images/avatar.png 2x"
         data-sizes="auto"
         alt="/images/avatar.png"
-        title="/images/avatar.png" width="528" height="560" /></a></div><div class="home-subtitle"><div id="id-1" class="typeit"></div></div><div class="links"><a href="mailto:ermeiyao@outlook.com" title="Email" rel="me"><i class="far fa-envelope fa-fw" aria-hidden="true"></i></a><a href="/index.xml" title="RSS" target="_blank" rel="noopener noreffer me"><i class="fas fa-rss fa-fw" aria-hidden="true"></i></a></div></div>
+        title="/images/avatar.png" width="512" height="512" /></a></div><div class="home-subtitle"><div id="id-1" class="typeit"></div></div><div class="links"><a href="mailto:ermeiyao@outlook.com" title="Email" rel="me"><i class="far fa-envelope fa-fw" aria-hidden="true"></i></a><a href="/index.xml" title="RSS" target="_blank" rel="noopener noreffer me"><i class="fas fa-rss fa-fw" aria-hidden="true"></i></a></div></div>
 <article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/wsl%E9%85%8D%E7%BD%AE%E4%BD%BF%E7%94%A8%E5%AE%BF%E4%B8%BB%E6%9C%BA%E7%BD%91%E7%BB%9C%E4%BB%A3%E7%90%86/">Wsl配置使用宿主机网络代理&go安装</a>
     </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel="author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>作者</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2024-10-30">2024-10-30</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/wsl/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Wsl</a></span></div><div class="content"><p>我刚刚在windows10上安装了Ubuntu-24 wsl，想着安装一下go，于是根据：https://go.dev/doc/install,  使用wget 去获取go安装包：</p></div><div class="post-footer">
@@ -165,6 +165,10 @@
 </div><p>比如我选择：Ubuntu-24.04</p></div><div class="post-footer">
         <a href="/wsl%E5%88%9D%E6%AD%A5%E4%BD%BF%E7%94%A8/">阅读全文</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/wsl/">Wsl</a></div></div>
+</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
+        <a href="/about/">关于</a>
+    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel="author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>作者</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2024-10-10">2024-10-10</time></span></div><div class="content"><p>18毕业后，就进入了华为，一开始在无线研发部门做4G基站软件开发，刚出来的时候没有什么经验，想着有份工作就不错了。后面，大概工作了一年，感觉这个路太专太窄了，不利于后面职业发展，所以转岗去了消费者部门，做广告推荐系统。在21年的时候跳槽到了腾讯，主要做腾讯游戏商业化相关的推荐场景，偏工程方向</p></div><div class="post-footer">
+        <a href="/about/">阅读全文</a></div>
 </article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
         <a href="/%E5%AF%BB%E6%89%BE%E4%B8%A4%E4%B8%AA%E6%AD%A3%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E4%BD%8D%E6%95%B0/">寻找两个正序数组中位数</a>
     </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel="author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>作者</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2024-03-19">2024-03-19</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/%E9%9D%A2%E8%AF%95/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>面试</a></span></div><div class="content"><h2 id="简单实现">简单实现</h2>
@@ -292,13 +296,6 @@
 <p>go在array/slice元素的索引和subslice 操作中，运行时将检查所涉及的索引是否越界&ndash;边界检查(Bounds-checking)。如果一个指数超出了范围，就会产生panic ，以防止非法的index造成伤害（如<a href="https://en.wikipedia.org/wiki/Heartbleed" target="_blank" rel="noopener noreffer ">Heartbleed</a>）。边界检查使我们的代码安全运行，另一方面，它们也使我们的代码运行得慢一些。可以通过生成的<a href="https://go.godbolt.org/z/eqEvh6ech" target="_blank" rel="noopener noreffer ">汇编代码</a>，查看是否有插入检查<code> CALL    runtime.panicIndex(SB)</code>. 这种插入的跳转会影响我们能多大程度上利用cpu的pipelining。</p></div><div class="post-footer">
         <a href="/go-bec/">阅读全文</a><div class="post-tags">
                 <i class="fas fa-tags fa-fw" aria-hidden="true"></i>&nbsp;<a href="/tags/go/">Go</a></div></div>
-</article><article class="single summary" itemscope itemtype="http://schema.org/Article"><h1 class="single-title" itemprop="name headline">
-        <a href="/flink-network-stack/">Flink Network Stack</a>
-    </h1><div class="post-meta"><span class="post-author"><a href="/" title="Author" rel="author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>作者</a></span>&nbsp;<span class="post-publish">发布于 <time datetime="2024-02-21">2024-02-21</time></span>&nbsp;<span class="post-category">收录于 <a href="/categories/flink/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Flink</a></span></div><div class="content"><p>Apache Flink 中的 Network Stack 是其流式处理引擎的主要组件之一，它负责在分布式系统中进行数据交换和通信。</p>
-<ol>
-<li>
-<p><strong>数据传输方式</strong>: 在Flink中，数据通过网络在任务操作符之间传输。Flink 网络堆栈使用 TCP/IP 套接字进行传输，并为每个连接配备了两个缓冲池。一个用于数据的接收，一个用于数据的发送。</p></div><div class="post-footer">
-        <a href="/flink-network-stack/">阅读全文</a></div>
 </article><ul class="pagination"><li class="page-item active">
                     <span class="page-link">
                         <a href="/">1</a>
