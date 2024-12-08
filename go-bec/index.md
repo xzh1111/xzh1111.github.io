@@ -113,7 +113,7 @@ go build -gcflags="-d=ssa/check_bce/debug=1"
 这边比较有趣的是：为什么使用 a[i:i+4:i+4] 而不是 a[i:i+4]?  -- 指定cap可以减少编译器重新计算slice的cap, 从而提高性能
 
 ### 业务函数
-首先我使用的go版本为1.21, 游戏商品推荐场景中，我们经常需要对新品道具做置顶操作。现在假设我们有个`pkgs []*Pkg` slice, 需要对新品ExtInfo["IsNew"]=="1" 做置顶操作，其中相关删除操作应该已经是最优解了：
+首先我使用的go版本为1.21, 游戏商品推荐场景中，我们经常需要对新品道具做置顶操作。现在假设我们有个`pkgs []*Pkg` slice, 需要对新品ExtInfo["IsNew"]=="1" 做置顶操作：
 ```go
 type Pkg struct {
 	Id      string

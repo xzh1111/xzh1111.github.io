@@ -68,14 +68,6 @@
 </div><p>比如我选择：Ubuntu-24.04</p>]]></description>
 </item>
 <item>
-    <title>关于</title>
-    <link>https://example.com/about/</link>
-    <pubDate>Thu, 10 Oct 2024 12:04:00 &#43;0800</pubDate>
-    <author>作者</author>
-    <guid>https://example.com/about/</guid>
-    <description><![CDATA[<p>18毕业后，就进入了华为，一开始在无线研发部门做4G基站软件开发，刚出来的时候没有什么经验，想着有份工作就不错了。后面，大概工作了一年，感觉这个路太专太窄了，不利于后面职业发展，所以转岗去了消费者部门，做广告推荐系统。在21年的时候跳槽到了腾讯，主要做腾讯游戏商业化相关的推荐场景，偏工程方向</p>]]></description>
-</item>
-<item>
     <title>寻找两个正序数组中位数</title>
     <link>https://example.com/%E5%AF%BB%E6%89%BE%E4%B8%A4%E4%B8%AA%E6%AD%A3%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E4%BD%8D%E6%95%B0/</link>
     <pubDate>Tue, 19 Mar 2024 14:52:56 &#43;0800</pubDate>

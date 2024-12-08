@@ -39,7 +39,7 @@
                             "url": "https:\/\/example.com\/images\/Apple-Devices-Preview.png",
                             "width":  3200 ,
                             "height":  2048 
-                        }],"genre": "posts","keywords": "go","wordcount":  3499 ,
+                        }],"genre": "posts","keywords": "go","wordcount":  3481 ,
         "url": "https:\/\/example.com\/go-bec\/","datePublished": "2024-02-24T18:00:29+08:00","dateModified": "2024-02-24T18:00:29+08:00","license": "This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.","publisher": {
             "@type": "Organization",
             "name": "xxxx","logo": {
@@ -124,7 +124,7 @@
             <div class="toc-content" id="toc-content-auto"></div>
         </div><article class="page single"><h1 class="single-title animate__animated animate__flipInX">Go BEC介绍和实际应用</h1><div class="post-meta">
             <div class="post-meta-line"><span class="post-author"><a href="/" title="Author" rel="author" class="author"><i class="fas fa-user-circle fa-fw" aria-hidden="true"></i>作者</a></span>&nbsp;<span class="post-category">收录于 <a href="/categories/go/"><i class="far fa-folder fa-fw" aria-hidden="true"></i>Go</a></span></div>
-            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-02-24">2024-02-24</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;约 3499 字&nbsp;
+            <div class="post-meta-line"><i class="far fa-calendar-alt fa-fw" aria-hidden="true"></i>&nbsp;<time datetime="2024-02-24">2024-02-24</time>&nbsp;<i class="fas fa-pencil-alt fa-fw" aria-hidden="true"></i>&nbsp;约 3481 字&nbsp;
                 <i class="far fa-clock fa-fw" aria-hidden="true"></i>&nbsp;预计阅读 7 分钟&nbsp;</div>
         </div><div class="details toc" id="toc-static"  data-kept="">
                 <div class="details-summary toc-title">
@@ -333,7 +333,7 @@
 </div><p>边界检查从8个下降到了2两个，因为新的slice的len和cap都是4,可以确保aTemp[0]、aTemp[3]、bTemp[0]、bTemp[3]不会越界。
 这边比较有趣的是：为什么使用 a[i:i+4:i+4] 而不是 a[i:i+4]?  &ndash; 指定cap可以减少编译器重新计算slice的cap, 从而提高性能</p>
 <h3 id="业务函数">业务函数</h3>
-<p>首先我使用的go版本为1.21, 游戏商品推荐场景中，我们经常需要对新品道具做置顶操作。现在假设我们有个<code>pkgs []*Pkg</code> slice, 需要对新品ExtInfo[&ldquo;IsNew&rdquo;]==&ldquo;1&rdquo; 做置顶操作，其中相关删除操作应该已经是最优解了：</p>
+<p>首先我使用的go版本为1.21, 游戏商品推荐场景中，我们经常需要对新品道具做置顶操作。现在假设我们有个<code>pkgs []*Pkg</code> slice, 需要对新品ExtInfo[&ldquo;IsNew&rdquo;]==&ldquo;1&rdquo; 做置顶操作：</p>
 <div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
 <pre tabindex="0" class="chroma"><code><span class="lnt"> 1
